@@ -1,13 +1,12 @@
 package main
 
-import (
-	"geekermeter-data/coupang"
-	"geekermeter-data/kakao"
-	"geekermeter-data/nexon"
-)
+import "geekermeter-data/netmarble"
 
 func main() {
-	kakao.Kakao()
-	coupang.Coupang()
-	nexon.Nexon()
+	//kakao.Kakao()
+	//coupang.Coupang()
+	//nexon.Nexon()
+	//rocketpunch.Rocketpunch()
+	//crafton.Crafton()
+	netmarble.Netmarble()
 }
