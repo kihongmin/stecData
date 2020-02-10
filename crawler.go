@@ -1,6 +1,6 @@
 package main
 
-import "geekermeter-data/netmarble"
+import "geekermeter-data/naver"
 
 func main() {
 	//kakao.Kakao()
@@ -8,5 +8,5 @@ func main() {
 	//nexon.Nexon()
 	//rocketpunch.Rocketpunch()
 	//crafton.Crafton()
-	netmarble.Netmarble()
+	naver.Naver()
 }
