@@ -1,4 +1,4 @@
-package main
+package coupang
 
 import (
 	"context"
@@ -10,7 +10,7 @@ import (
 	"github.com/chromedp/chromedp"
 )
 
-func Crawler() {
+func Coupang() {
 	ctx, cancel := chromedp.NewContext(context.Background())
 	defer cancel()
 
@@ -18,7 +18,7 @@ func Crawler() {
 	var nodes []*cdp.Node
 	var loc string
 	err := chromedp.Run(ctx,
-		chromedp.Navigate(`https://career.nexon.com/user/recruit/notice/noticeList`),
+		chromedp.Navigate(`https://rocketyourcareer.kr.coupang.com/%ea%b2%80%ec%83%89-%ec%a7%81%eb%ac%b4`),
 		//chromedp.Click("#container > ul > li:nth-child(1)", chromedp.NodeVisible),
 		// 인재채용 페이지까지 들어옴
 		chromedp.Location(&loc),
@@ -28,18 +28,12 @@ func Crawler() {
 		log.Fatal(err)
 	}
 
-	for i := 1; i < 16; i++ { //일단 15페이지까지 있어서 고정 설정
-		var clickSelector string
-		if i == 1 {
-			clickSelector = "#container > ul > li:nth-child(1)"
-		} else {
-			clickSelector = "#con_right > div.content > div > a.next"
-		}
+	for i := 1; i < 18; i++ { //일단 고정 설정
 		err := chromedp.Run(ctx,
-			chromedp.Click(clickSelector, chromedp.NodeVisible),
 			chromedp.Sleep(2*time.Second),
 			//url을 모두 node에 저장
-			chromedp.Nodes("#con_right > div.content > table > tbody > tr > td.tleft.fc_02 > a", &nodes, chromedp.ByQueryAll),
+			chromedp.Nodes("#search-results-list > ul > li > a", &nodes, chromedp.ByQueryAll),
+			chromedp.Click("#pagination-bottom > div.pagination-paging > a.next", chromedp.NodeVisible),
 			//다음 버튼 클릭
 		)
 		if err != nil {
@@ -47,13 +41,9 @@ func Crawler() {
 		}
 		fmt.Println(i)
 		for _, n := range nodes {
-			fmt.Printf("https://career.nexon.com%s \n", n.AttributeValue("href"))
+			fmt.Printf("https://rocketyourcareer.kr.coupang.com%s \n", n.AttributeValue("href"))
 		}
 	}
 
-	log.Printf("Landed on %s", loc)
-}
-
-func main() {
-	Crawler()
+	log.Printf("\nLanded on %s", loc)
 }
