@@ -1,6 +1,6 @@
 package main
 
-import "geekermeter-data/naver"
+import "geekermeter-data/ncsoft"
 
 func main() {
 	//kakao.Kakao()
@@ -8,5 +8,6 @@ func main() {
 	//nexon.Nexon()
 	//rocketpunch.Rocketpunch()
 	//crafton.Crafton()
-	naver.Naver()
+	//naver.Naver()
+	ncsoft.Ncsoft()
 }
