@@ -1,6 +1,9 @@
 package main
 
-import "geekermeter-data/crawler/netmarble"
+import (
+	"geekermeter-data/crawler/programmers"
+	"geekermeter-data/db"
+)
 
 func main() {
 	//kakao.Kakao()
@@ -10,6 +13,7 @@ func main() {
 	//crafton.Crafton()
 	//naver.Naver()
 	//ncsoft.Ncsoft()
-	netmarble.Netmarble()
-	//db.Insert(programmersJobs)
+	// netmarble.Netmarble()
+	programmersJobs := programmers.Programmers()
+	db.Insert(programmersJobs)
 }
