@@ -1,6 +1,6 @@
 package main
 
-import "geekermeter-data/netmarble"
+import "geekermeter-data/crawler/netmarble"
 
 func main() {
 	//kakao.Kakao()
