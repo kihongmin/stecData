@@ -2,6 +2,7 @@ package db
 
 import (
 	"database/sql"
+	"geekermeter-data/config"
 	"geekermeter-data/crawler"
 	"log"
 
@@ -10,7 +11,7 @@ import (
 
 // DB is DB
 func connect() *sql.DB {
-	configuration := crawler.GetConfig()
+	configuration := config.GetConfig()
 	mySQL := configuration.MySQLUser + ":" + configuration.MySQLPW + "@tcp(" + configuration.MySQLHost + ":" + configuration.MySQLPort + ")/" + configuration.MySQLDB
 	db, err := sql.Open("mysql", mySQL)
 	crawler.ErrHandler(err)

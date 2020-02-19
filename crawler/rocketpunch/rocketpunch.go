@@ -49,7 +49,3 @@ func Rocketpunch() {
 
 	log.Printf("\nLanded on %s", loc)
 }
-
-func main() {
-	Crawler()
-}

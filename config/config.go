@@ -8,13 +8,15 @@ import (
 
 // Configuration is
 type Configuration struct {
-	Host      string `env:"HOST" envDefault:"localhost"`
-	Port      string `env:"PORT" envDefault:"80"`
-	MySQLHost string `env:"MySQL_HOST" envDefault:"127.0.0.1"`
-	MySQLPort string `env:"MySQL_PORT" envDefault:"3306"`
-	MySQLUser string `env:"MySQL_USER" envDefault:"root"`
-	MySQLPW   string `env:"MySQL_PW"`
-	MySQLDB   string `env:"MySQL_DB" envDefault:"stec"`
+	Host       string `env:"HOST" envDefault:"localhost"`
+	Port       string `env:"PORT" envDefault:"80"`
+	MySQLHost  string `env:"MySQL_HOST" envDefault:"127.0.0.1"`
+	MySQLPort  string `env:"MySQL_PORT" envDefault:"3306"`
+	MySQLUser  string `env:"MySQL_USER" envDefault:"root"`
+	MySQLPW    string `env:"MySQL_PW"`
+	MySQLDB    string `env:"MySQL_DB" envDefault:"stec"`
+	ClientHost string
+	ClientPort string
 }
 
 // GetConfig is
