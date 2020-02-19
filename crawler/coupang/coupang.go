@@ -3,7 +3,6 @@ package coupang
 import (
 	"context"
 	"geekermeter-data/crawler"
-	"log"
 	"strconv"
 	"time"
 
@@ -31,9 +30,8 @@ func Coupang() []crawler.Job {
 
 	var totalPageNode []*cdp.Node
 	var totalPage string
-	if err := chromedp.Run(ctx, chromedp.Nodes("#pagination-current-bottom", &totalPageNode, chromedp.ByID)); err != nil {
-		log.Fatal(err)
-	}
+	err = chromedp.Run(ctx, chromedp.Nodes("#pagination-current-bottom", &totalPageNode, chromedp.ByID))
+	crawler.ErrHandler(err)
 	for _, row := range totalPageNode {
 		//temp.url = "https://programmers.co.kr/" + row.AttributeValue("href")
 		totalPage = row.AttributeValue("max")
