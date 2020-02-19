@@ -8,7 +8,7 @@ import (
 	"time"
 
 	"github.com/chromedp/cdproto/cdp"
-	"github.com/knq/chromedp"
+	"github.com/chromedp/chromedp"
 )
 
 var (
