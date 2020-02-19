@@ -2,8 +2,7 @@ package crafton
 
 import (
 	"context"
-	"fmt"
-	"log"
+	"geekermeter-data/crawler"
 	"strconv"
 	"time"
 
@@ -11,44 +10,58 @@ import (
 	"github.com/chromedp/chromedp"
 )
 
-func Crafton() {
+var (
+	baseURL = `https://krafton.recruiter.co.kr/app/jobnotice/list`
+)
+
+func Crafton() []crawler.Job {
+	var crawledData []crawler.Job
 	ctx, cancel := chromedp.NewContext(context.Background())
 	defer cancel()
 
-	// run task list
-	var nodes []*cdp.Node
 	var loc string
 	err := chromedp.Run(ctx,
-
-		// 인재채용 페이지까지 들어옴
-		chromedp.Navigate(`https://krafton.recruiter.co.kr/app/jobnotice/list`),
+		chromedp.Navigate(baseURL),
 		chromedp.Location(&loc),
 	)
-	if err != nil {
-		log.Fatal(err)
+	crawler.ErrHandler(err)
+
+	var totalPageNode []*cdp.Node
+	var totalPage string
+	err = chromedp.Run(ctx,
+		chromedp.Nodes("#content > div.paging-wrapper.middle-set > div > button.btn.btn-paging.btn-small.btn-circle.fa.fa-angle-double-right", &totalPageNode, chromedp.ByID))
+	crawler.ErrHandler(err)
+
+	for _, row := range totalPageNode {
+		//temp.url = "https://programmers.co.kr/" + row.AttributeValue("href")
+		totalPage = row.AttributeValue("pageindex")
 	}
+	t, _ := strconv.Atoi(totalPage)
 
-	for i := 2; i <= 6; i++ { //일단 고정 설정->마지막페이지는 현재 안됨. 예쁘게 할려고 나중으로 미룸
-		err := chromedp.Run(ctx,
-			chromedp.Sleep(2*time.Second),
-			chromedp.Nodes("#divJobnoticeList > ul > li > div > h2 > a", &nodes, chromedp.ByQueryAll),
-		)
-		if err != nil {
-			log.Fatal(err)
+	for i := 2; i <= t+1; i++ {
+		temp := make([]crawler.Job, 10) // 최소단위 : 10
+		var nodes []*cdp.Node
+		if i == t+1 {
+			err = chromedp.Run(ctx,
+				chromedp.Sleep(2*time.Second),
+				chromedp.Nodes("#divJobnoticeList > ul > li > div > h2 > a", &nodes, chromedp.ByQueryAll),
+			)
+		} else {
+			err = chromedp.Run(ctx,
+				chromedp.Sleep(2*time.Second),
+				chromedp.Nodes("#divJobnoticeList > ul > li > div > h2 > a", &nodes, chromedp.ByQueryAll),
+				chromedp.Click("#content > div.paging-wrapper.middle-set > div > ul > li:nth-child("+strconv.Itoa(i)+") > a", chromedp.NodeVisible),
+			)
 		}
 
-		for _, n := range nodes {
-			fmt.Printf("https://krafton.recruiter.co.kr/app/jobnotice/view?systemKindCode=MRS2&jobnoticeSn=%s \n", n.AttributeValue("data-jobnoticesn"))
-		}
-		clickerr := chromedp.Run(ctx,
-			chromedp.Click("#content > div.paging-wrapper.middle-set > div > ul > li:nth-child("+strconv.Itoa(i)+") > a", chromedp.NodeVisible),
-		)
-		if err != nil {
-			log.Fatal(clickerr)
-		}
+		crawler.ErrHandler(err)
 
-		//fmt.Println(i)
+		for k, n := range nodes {
+			temp[k].URL = "https://krafton.recruiter.co.kr/app/jobnotice/view?systemKindCode=MRS2&jobnoticeSn=" + n.AttributeValue("data-jobnoticesn")
+			temp[k].Title = n.Children[0].NodeValue
+			temp[k].Origin = "Crafton"
+		}
+		crawledData = append(crawledData, temp...)
 	}
-
-	log.Printf("\nLanded on %s", loc)
+	return crawledData
 }

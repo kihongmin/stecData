@@ -2,7 +2,7 @@ package coupang
 
 import (
 	"context"
-	"log"
+	"geekermeter-data/crawler"
 	"strconv"
 	"time"
 
@@ -10,41 +10,35 @@ import (
 	"github.com/chromedp/chromedp"
 )
 
-type data struct {
-	url   string
-	title string
-}
+var (
+	baseURL = `https://rocketyourcareer.kr.coupang.com/%ea%b2%80%ec%83%89-%ec%a7%81%eb%ac%b4`
+)
 
-func Coupang() {
-	var crawledData []data
+func Coupang() []crawler.Job {
+	var crawledData []crawler.Job
 	ctx, cancel := chromedp.NewContext(context.Background())
 	defer cancel()
 
 	// run task list
 	var loc string
 	err := chromedp.Run(ctx,
-		chromedp.Navigate(`https://rocketyourcareer.kr.coupang.com/%ea%b2%80%ec%83%89-%ec%a7%81%eb%ac%b4`),
-		//chromedp.Click("#container > ul > li:nth-child(1)", chromedp.NodeVisible),
-		// 인재채용 페이지까지 들어옴
+		chromedp.Navigate(baseURL),
 		chromedp.Location(&loc),
-		//chromedp.Click("#page-container > div > div.signin-wrapper > form > div.clearfix > button",chromedp.ByQuery),
 	)
-	if err != nil {
-		log.Fatal(err)
-	}
+
+	crawler.ErrHandler(err)
 
 	var totalPageNode []*cdp.Node
 	var totalPage string
-	if err := chromedp.Run(ctx, chromedp.Nodes("#pagination-current-bottom", &totalPageNode, chromedp.ByID)); err != nil {
-		log.Fatal(err)
-	}
+	err = chromedp.Run(ctx, chromedp.Nodes("#pagination-current-bottom", &totalPageNode, chromedp.ByID))
+	crawler.ErrHandler(err)
 	for _, row := range totalPageNode {
 		//temp.url = "https://programmers.co.kr/" + row.AttributeValue("href")
 		totalPage = row.AttributeValue("max")
 	}
 	t, _ := strconv.Atoi(totalPage)
 	for i := 0; i < t; i++ {
-		temp := make([]data, 15) // 최소단위 : 10
+		temp := make([]crawler.Job, 15) // 최소단위 : 10
 
 		var nodes []*cdp.Node
 		var titleNode []*cdp.Node
@@ -57,21 +51,23 @@ func Coupang() {
 			chromedp.Click("#pagination-bottom > div.pagination-paging > a.next", chromedp.NodeVisible),
 			//다음 버튼 클릭
 		)
-		if err != nil {
-			log.Fatal(err)
+		crawler.ErrHandler(err)
+		for k, row := range nodes {
+			temp[k].URL = "https://rocketyourcareer.kr.coupang.com" + row.AttributeValue("href")
+			temp[k].Origin = "Coupang"
 		}
-		for i, row := range nodes {
-			temp[i].url = "https://rocketyourcareer.kr.coupang.com" + row.AttributeValue("href")
-		}
-		for i, row := range titleNode {
+		for k, row := range titleNode {
 			//temp.url = "https://programmers.co.kr/" + row.AttributeValue("href")
-			temp[i].title = row.Children[0].NodeValue
+			temp[k].Title = row.Children[0].NodeValue
 		}
 		crawledData = append(crawledData, temp...)
 	}
-
-	for _, dat := range crawledData {
-		log.Printf("%s", dat.title)
-		log.Printf("%s", dat.url)
-	}
+	/*
+		for _, dat := range crawledData {
+			log.Printf("%s", dat.Title)
+			log.Printf("%s", dat.URL)
+			log.Printf("%s", dat.Origin)
+		}
+	*/
+	return crawledData
 }
