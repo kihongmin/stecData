@@ -27,9 +27,7 @@ func Coupang() []crawler.Job {
 		chromedp.Location(&loc),
 	)
 
-	if err != nil {
-		log.Fatal(err)
-	}
+	crawler.ErrHandler(err)
 
 	var totalPageNode []*cdp.Node
 	var totalPage string
@@ -55,25 +53,23 @@ func Coupang() []crawler.Job {
 			chromedp.Click("#pagination-bottom > div.pagination-paging > a.next", chromedp.NodeVisible),
 			//다음 버튼 클릭
 		)
-		if err != nil {
-			log.Fatal(err)
+		crawler.ErrHandler(err)
+		for k, row := range nodes {
+			temp[k].URL = "https://rocketyourcareer.kr.coupang.com" + row.AttributeValue("href")
+			temp[k].Origin = "Coupang"
 		}
-		for i, row := range nodes {
-			temp[i].URL = "https://rocketyourcareer.kr.coupang.com" + row.AttributeValue("href")
-			temp[i].Origin = "Coupang"
-		}
-		for i, row := range titleNode {
+		for k, row := range titleNode {
 			//temp.url = "https://programmers.co.kr/" + row.AttributeValue("href")
-			temp[i].Title = row.Children[0].NodeValue
+			temp[k].Title = row.Children[0].NodeValue
 		}
 		crawledData = append(crawledData, temp...)
 	}
-
-	for _, dat := range crawledData {
-		log.Printf("%s", dat.Title)
-		log.Printf("%s", dat.URL)
-		log.Printf("%s", dat.Origin)
-	}
-
+	/*
+		for _, dat := range crawledData {
+			log.Printf("%s", dat.Title)
+			log.Printf("%s", dat.URL)
+			log.Printf("%s", dat.Origin)
+		}
+	*/
 	return crawledData
 }
