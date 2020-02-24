@@ -1,14 +1,14 @@
 package main
 
-import "geekermeter-data/crawler/kakao"
+import "geekermeter-data/crawler/naver"
 
 func main() {
-	kakao.Kakao()
+	//kakao.Kakao()
 	//coupang.Coupang()
 	//nexon.Nexon()
 	//rocketpunch.Rocketpunch()
 	//crafton.Crafton()
-	//naver.Naver()
+	naver.Naver()
 	//ncsoft.Ncsoft()
 	//netmarble.Netmarble()
 }
