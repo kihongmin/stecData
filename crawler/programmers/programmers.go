@@ -75,3 +75,36 @@ func Programmers() []crawler.Job {
 	// log.Println(count, cap(crawledData), len(crawledData))
 	return crawledData
 }
+
+func BodyText(URL string) []crawler.BodyText {
+	textNode := make([]crawler.BodyText, 10)
+	ctx, cancel := chromedp.NewContext(context.Background())
+	defer cancel()
+
+	// run task list
+	var loc string
+	err := chromedp.Run(ctx,
+		chromedp.Navigate(URL),
+		chromedp.Location(&loc),
+	)
+	crawler.ErrHandler(err)
+	var position []*cdp.Node
+	var requirements []*cdp.Node
+	var preference []*cdp.Node
+	err = chromedp.Run(ctx,
+		chromedp.Sleep(2*time.Second),
+		chromedp.Nodes("body > div.main > div.position-show > div > div > div.content-body.col-item.col-xs-12.col-sm-12.col-md-12.col-lg-8 > section.section-position > div > div > ul > li", &position, chromedp.ByQueryAll),
+		chromedp.Nodes("body > div.main > div.position-show > div > div > div.content-body.col-item.col-xs-12.col-sm-12.col-md-12.col-lg-8 > section.section-requirements > div > div > ul > li", &requirements, chromedp.ByQueryAll),
+		chromedp.Nodes("body > div.main > div.position-show > div > div > div.content-body.col-item.col-xs-12.col-sm-12.col-md-12.col-lg-8 > section.section-preference > div > div > ul > li", &preference, chromedp.ByQueryAll),
+	)
+	for i, row := range position {
+		textNode[i].Position = row.Children[0].NodeValue
+	}
+	for i, row := range requirements {
+		textNode[i].Requirements = row.Children[0].NodeValue
+	}
+	for i, row := range preference {
+		textNode[i].Preference = row.Children[0].NodeValue
+	}
+	return textNode
+}

@@ -12,6 +12,11 @@ type Job struct {
 	Title  string
 	Origin string
 }
+type BodyText struct {
+	Position     string
+	Requirements string
+	Preference   string
+}
 
 type URLs struct {
 	ID     int
