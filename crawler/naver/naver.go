@@ -53,6 +53,7 @@ func Naver() []crawler.Job { //아직 개발 직군만 크롤링임.
 	}
 	//title node
 	for i, row := range titleNodes {
+		log.Println(i)
 		crawledData[i].Title = row.Children[0].NodeValue
 		crawledData[i].Origin = "naver"
 	}
@@ -71,6 +72,7 @@ func Naver() []crawler.Job { //아직 개발 직군만 크롤링임.
 			log.Printf("%s", dat.Title)
 			log.Printf("%s", dat.URL)
 			log.Printf("%s", dat.Origin)
-		}*/
+		}
+	*/
 	return crawledData
 }
