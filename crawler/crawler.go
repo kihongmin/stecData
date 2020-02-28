@@ -3,6 +3,7 @@ package crawler
 import (
 	"fmt"
 	"log"
+	"regexp"
 
 	"github.com/caarlos0/env"
 )
@@ -55,4 +56,10 @@ func ErrHandler(err error) {
 	if err != nil {
 		log.Fatal(err)
 	}
+}
+
+func ExtractNum(word string) string {
+	re := regexp.MustCompile(`[^0-9]+`)
+	key := re.ReplaceAllString(word, "")
+	return key
 }
