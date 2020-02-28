@@ -2,54 +2,80 @@ package nexon
 
 import (
 	"context"
-	"fmt"
+	"geekermeter-data/crawler"
 	"log"
+	"strconv"
 	"time"
 
 	"github.com/chromedp/cdproto/cdp"
 	"github.com/chromedp/chromedp"
 )
 
-func Nexon() {
+var (
+	baseURL = "https://career.nexon.com/user/recruit/notice/noticeList"
+)
+
+func Nexon() []crawler.Job {
+	var crawledData []crawler.Job
 	ctx, cancel := chromedp.NewContext(context.Background())
 	defer cancel()
 
-	// run task list
-	var nodes []*cdp.Node
 	var loc string
 	err := chromedp.Run(ctx,
-		chromedp.Navigate(`https://career.nexon.com/user/recruit/notice/noticeList`),
-		//chromedp.Click("#container > ul > li:nth-child(1)", chromedp.NodeVisible),
-		// 인재채용 페이지까지 들어옴
+		chromedp.Navigate(baseURL),
 		chromedp.Location(&loc),
-		//chromedp.Click("#page-container > div > div.signin-wrapper > form > div.clearfix > button",chromedp.ByQuery),
 	)
-	if err != nil {
-		log.Fatal(err)
-	}
+	crawler.ErrHandler(err)
 
-	for i := 1; i < 16; i++ { //일단 15페이지까지 있어서 고정 설정
-		var clickSelector string
-		if i == 1 {
-			clickSelector = "#container > ul > li:nth-child(1)"
-		} else {
-			clickSelector = "#con_right > div.content > div > a.next"
-		}
+	err = chromedp.Run(ctx,
+		chromedp.Click("#container > ul > li:nth-child(1)", chromedp.NodeVisible))
+	crawler.ErrHandler(err)
+
+	var totalPageNode []*cdp.Node
+	var totalPage string
+	err = chromedp.Run(ctx,
+		chromedp.Nodes("#con_right > div.content > div > a.last", &totalPageNode))
+	crawler.ErrHandler(err)
+
+	for _, row := range totalPageNode {
+		totalPage = row.AttributeValue("href")[20:22]
+	}
+	t, _ := strconv.Atoi(totalPage)
+
+	for i := 0; i <= t; i++ {
+		temp := make([]crawler.Job, 10)
+		var nodes []*cdp.Node
+		var titleNode []*cdp.Node
+
 		err := chromedp.Run(ctx,
-			chromedp.Click(clickSelector, chromedp.NodeVisible),
 			chromedp.Sleep(2*time.Second),
-			//url을 모두 node에 저장
 			chromedp.Nodes("#con_right > div.content > table > tbody > tr > td.tleft.fc_02 > a", &nodes, chromedp.ByQueryAll),
-			//다음 버튼 클릭
+			chromedp.Nodes("#con_right > div.content > table > tbody > tr > td.tleft.fc_02 > a > span", &titleNode, chromedp.ByQueryAll),
 		)
-		if err != nil {
-			log.Fatal(err)
+		crawler.ErrHandler(err)
+
+		for l, row := range nodes {
+			temp[l].URL = "https://career.nexon.com" + row.AttributeValue("href")
 		}
-		fmt.Println(i)
-		for _, n := range nodes {
-			fmt.Printf("https://career.nexon.com%s \n", n.AttributeValue("href"))
+		for l, row := range titleNode {
+			temp[l].Title = row.Children[0].NodeValue
+			temp[l].Origin = "nexon"
+		}
+
+		crawledData = append(crawledData, temp...)
+
+		if i != t {
+			err = chromedp.Run(ctx,
+				chromedp.Click("#con_right > div.content > div > a.next", chromedp.NodeVisible),
+			)
+			crawler.ErrHandler(err)
 		}
 	}
 
-	log.Printf("Landed on %s", loc)
+	for i, _ := range crawledData {
+		log.Println(crawledData[i].URL)
+		log.Println(crawledData[i].Title)
+		log.Println(crawledData[i].Origin)
+	}
+	return crawledData
 }
