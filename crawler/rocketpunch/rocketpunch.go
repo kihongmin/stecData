@@ -2,10 +2,14 @@ package rocketpunch
 
 import (
 	"context"
+	"fmt"
 	"geekermeter-data/crawler"
+	"log"
+	"net/http"
 	"strconv"
 	"time"
 
+	"github.com/PuerkitoBio/goquery"
 	"github.com/chromedp/cdproto/cdp"
 	"github.com/chromedp/chromedp"
 )
@@ -73,4 +77,36 @@ func Rocketpunch() []crawler.Job {
 		crawledData = append(crawledData, temp...)
 	}
 	return crawledData
+}
+
+func Body(url string) {
+	res, err := http.Get(url)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	defer res.Body.Close()
+	if res.StatusCode != 200 {
+		log.Fatal()
+	}
+
+	doc, err := goquery.NewDocumentFromReader(res.Body)
+	if err != nil {
+		fmt.Println("No url found")
+		log.Fatal(err)
+	}
+
+	// Find each table
+	doc.Find("#wrap > div.eight.wide.job-content.column").Each(func(in int, tablehtml *goquery.Selection) {
+		tablehtml.Find("section:nth-child(1) > div > span").Each(func(j int, duty *goquery.Selection) {
+			log.Println(duty.Text())
+		})
+		tablehtml.Find("section:nth-child(3) > div").Each(func(j int, special *goquery.Selection) {
+			log.Println(special.Text())
+		})
+		tablehtml.Find("section:nth-child(6) > div.content.break > span.hide.full-text").Each(func(j int, detail *goquery.Selection) {
+			log.Println(detail.Text())
+		})
+	})
+
 }

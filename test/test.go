@@ -7,7 +7,7 @@ func main() {
 	//kakao.Kakao()
 	//coupang.Coupang()
 	//nexon.Nexon()
-	rocketpunch.Rocketpunch()
+	rocketpunch.Body("https://www.rocketpunch.com/jobs/63916/Data-Scientist")
 	//crafton.Crafton()
 	//naver.Naver()
 	//ncsoft.Ncsoft()
