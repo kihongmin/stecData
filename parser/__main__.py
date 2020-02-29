@@ -24,7 +24,7 @@ for d, doc in enumerate(docs):
     lines = [line.rstrip('\n\s\t\r\v') for line in lines]
     for line in lines:
         ret += regularizer.run(line)
-    
+
     # raw text 삭제
     os.remove(new+doc)
     print(f'file [{doc}] in [{new}] is removed!')
