@@ -2,7 +2,10 @@ package programmers
 
 import (
 	"context"
+	"encoding/json"
 	"geekermeter-data/crawler"
+	"io/ioutil"
+	"os"
 	"time"
 
 	"github.com/chromedp/cdproto/cdp"
@@ -65,26 +68,17 @@ func Programmers() []crawler.Job {
 		}
 		chromedp.Sleep(1 * time.Second)
 	}
-
-	// for _, dat := range crawledData {
-	// 	log.Printf("%s", dat.Title)
-	// 	log.Printf("%s", dat.URL)
-	// 	log.Printf("%s", dat.Origin)
-	// }
-
-	// log.Println(count, cap(crawledData), len(crawledData))
 	return crawledData
 }
 
-func BodyText(URL string) []crawler.BodyText {
-	textNode := make([]crawler.BodyText, 10)
+func BodyText(box crawler.Job) crawler.Job {
 	ctx, cancel := chromedp.NewContext(context.Background())
 	defer cancel()
 
 	// run task list
 	var loc string
 	err := chromedp.Run(ctx,
-		chromedp.Navigate(URL),
+		chromedp.Navigate(box.URL),
 		chromedp.Location(&loc),
 	)
 	crawler.ErrHandler(err)
@@ -97,14 +91,22 @@ func BodyText(URL string) []crawler.BodyText {
 		chromedp.Nodes("body > div.main > div.position-show > div > div > div.content-body.col-item.col-xs-12.col-sm-12.col-md-12.col-lg-8 > section.section-requirements > div > div > ul > li", &requirements, chromedp.ByQueryAll),
 		chromedp.Nodes("body > div.main > div.position-show > div > div > div.content-body.col-item.col-xs-12.col-sm-12.col-md-12.col-lg-8 > section.section-preference > div > div > ul > li", &preference, chromedp.ByQueryAll),
 	)
-	for i, row := range position {
-		textNode[i].Position = row.Children[0].NodeValue
+	contentNum := 0
+	box.Content = make([]string, 30)
+	for _, row := range position {
+		box.Content[contentNum] = row.Children[0].NodeValue
+		contentNum++
 	}
-	for i, row := range requirements {
-		textNode[i].Requirements = row.Children[0].NodeValue
+	for _, row := range requirements {
+		box.Content[contentNum] = row.Children[0].NodeValue
+		contentNum++
 	}
-	for i, row := range preference {
-		textNode[i].Preference = row.Children[0].NodeValue
+	for _, row := range preference {
+		box.Content[contentNum] = row.Children[0].NodeValue
+		contentNum++
 	}
-	return textNode
+	box.Content = box.Content[:contentNum]
+	doc, _ := json.Marshal(box)
+	err = ioutil.WriteFile("./articles.json", doc, os.FileMode(0644))
+	return box
 }

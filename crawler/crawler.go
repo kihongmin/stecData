@@ -3,8 +3,7 @@ package crawler
 import (
 	"log"
 	"regexp"
-
-	"github.com/caarlos0/env"
+	//"github.com/caarlos0/env"
 )
 
 type Job struct {
@@ -13,12 +12,7 @@ type Job struct {
 	Origin    string
 	StartDate string
 	Newbie    bool
-	Content   string
-}
-type BodyText struct {
-	Position     string
-	Requirements string
-	Preference   string
+	Content   []string
 }
 
 type URLs struct {
@@ -32,6 +26,7 @@ type URLs struct {
 	// basic string
 	// advanced string
 }
+
 // errHandler is errHandler
 func ErrHandler(err error) {
 	if err != nil {
