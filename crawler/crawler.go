@@ -5,9 +5,12 @@ import (
 )
 
 type Job struct {
-	URL    string
-	Title  string
-	Origin string
+	URL       string
+	Title     string
+	Origin    string
+	StartDate string
+	Newbie    bool
+	Content   string
 }
 
 type URLs struct {
