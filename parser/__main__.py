@@ -21,7 +21,7 @@ new = os.path.abspath(new)
 docs = os.listdir(new)
 ret = []
 for d, doc in enumerate(docs):
-    with open(new+doc, 'r') as f:
+    with open(new+'/'+doc, 'r') as f:
         doc_js = json.load(f)
     lines = doc_js.get('content')
     URL = doc_js.get('URL')
