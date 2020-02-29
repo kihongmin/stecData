@@ -39,5 +39,5 @@ class STECRegularizer:
         # replace syns 
 
         # remove stop words
-        ret = [r for r in ret if r not in self.stop_words]
+        # ret = [r for r in ret if r not in self.stop_words]
         return ret

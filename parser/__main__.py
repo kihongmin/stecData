@@ -11,8 +11,8 @@ PEOPLE = 3
 
 dic = os.path.abspath('../dataset/dictionary/')
 regularizer = STECRegularizer(
-                    stop_words=dic+'stop_words.pkl',
-                    syns_words=dic+'syns_words.pkl',
+                    # stop_words=dic+'stop_words.pkl',
+                    # syns_words=dic+'syns_words.pkl',
                 )
 
 tmp = '../dataset/tmp/'
