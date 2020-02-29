@@ -9,14 +9,14 @@ from . import STECRegularizer
 DOC_PACK = 50
 PEOPLE = 3
 
-dic = os.path.abspath('../dataset/dictionary/')
+dic = os.path.abspath('./dataset/dictionary/')
 regularizer = STECRegularizer(
                     # stop_words=dic+'stop_words.pkl',
                     # syns_words=dic+'syns_words.pkl',
                 )
 
-tmp = '../dataset/tmp/'
-new = '../dataset/new/'
+tmp = './dataset/tmp/'
+new = './dataset/new/'
 new = os.path.abspath(new)
 docs = os.listdir(new)
 ret = []
