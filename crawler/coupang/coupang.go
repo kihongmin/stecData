@@ -32,6 +32,7 @@ func Coupang() []crawler.Job {
 	var totalPage string
 	err = chromedp.Run(ctx, chromedp.Nodes("#pagination-current-bottom", &totalPageNode, chromedp.ByID))
 	crawler.ErrHandler(err)
+
 	for _, row := range totalPageNode {
 		//temp.url = "https://programmers.co.kr/" + row.AttributeValue("href")
 		totalPage = row.AttributeValue("max")
