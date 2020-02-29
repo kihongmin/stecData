@@ -7,12 +7,12 @@ import (
 )
 
 type Job struct {
-	URL       string
-	Title     string
-	Origin    string
-	StartDate string
-	Newbie    bool
-	Content   []string
+	URL       string   `json:"url"`
+	Title     string   `json:"title"`
+	Origin    string   `json:"origin"`
+	StartDate string   `json:"start_date"`
+	Newbie    bool     `json:"newbie"`
+	Content   []string `json:"content"`
 }
 
 type URLs struct {
