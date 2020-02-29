@@ -21,14 +21,16 @@ new = os.path.abspath(new)
 docs = os.listdir(new)
 ret = []
 for d, doc in enumerate(docs):
-    with open(new+'/'+doc, 'r', ensure_ascii=False) as f:
+    with open(new+'/'+doc, encoding="utf-8") as f:
         doc_js = json.load(f)
     lines = doc_js.get('content')
     URL = doc_js.get('URL')
     if lines is None:
-        print(f'file [{doc}] in [{new}] could not readable!')   
+        print(f'file [{doc}] in [{new}] could not readable!')
+        continue
 
     lines = [line.rstrip('\n\s\t\r\v') for line in lines]
+    lines = [line.replace("\xa0", " ") for line in lines]
     for line in lines:
         ret += regularizer.run(line)
 
