@@ -32,7 +32,7 @@ func Rocketpunch() []crawler.Job {
 
 	var totalPageNode []*cdp.Node
 	var totalPage string
-	//currPage := 0
+
 	err = chromedp.Run(ctx,
 		chromedp.Nodes("#search-results > div.ui.blank.right.floated.segment > div > div.tablet.computer.large.screen.widescreen.only > a:nth-child(7)",
 			&totalPageNode, chromedp.ByID))
@@ -79,7 +79,7 @@ func Rocketpunch() []crawler.Job {
 	return crawledData
 }
 
-func Body(url string) {
+func BodyText(url string) {
 	res, err := http.Get(url)
 	if err != nil {
 		log.Fatal(err)
