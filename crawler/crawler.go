@@ -39,3 +39,9 @@ func ExtractNum(word string) string {
 	key := re.ReplaceAllString(word, "")
 	return key
 }
+
+func Exceptspecial(word string) string {
+	re := regexp.MustCompile(`[^0-9A-Za-z]+`)
+	key := re.ReplaceAllString(word, "")
+	return key
+}
