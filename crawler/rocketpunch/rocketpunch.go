@@ -2,8 +2,10 @@ package rocketpunch
 
 import (
 	"context"
+	"encoding/json"
 	"fmt"
 	"geekermeter-data/crawler"
+	"io/ioutil"
 	"log"
 	"net/http"
 	"strconv"
@@ -42,6 +44,9 @@ func Rocketpunch() []crawler.Job {
 	}
 	t, _ := strconv.Atoi(totalPage)
 	for i := 1; i <= t; i++ { //페이지 단위
+		if i == 2 {
+			break
+		}
 		temp := make([]crawler.Job, 100)
 		var nodes []*cdp.Node
 		var detailNode []*cdp.Node
@@ -78,8 +83,10 @@ func Rocketpunch() []crawler.Job {
 	}
 	return crawledData
 }
-func BodyText(url string) {
-	res, err := http.Get(url)
+
+func BodyText(box crawler.Job) {
+	log.Println(box.URL)
+	res, err := http.Get(box.URL)
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -95,17 +102,34 @@ func BodyText(url string) {
 		log.Fatal(err)
 	}
 
-	// Find each table
-	doc.Find("#wrap > div.eight.wide.job-content.column").Each(func(in int, tablehtml *goquery.Selection) {
-		tablehtml.Find("section:nth-child(1) > div > span").Each(func(j int, duty *goquery.Selection) {
-			log.Println(duty.Text())
-		})
-		tablehtml.Find("section:nth-child(3) > div").Each(func(j int, special *goquery.Selection) {
-			log.Println(special.Text())
-		})
-		tablehtml.Find("section:nth-child(6) > div.content.break > span.hide.full-text").Each(func(j int, detail *goquery.Selection) {
-			log.Println(detail.Text())
-		})
+	accepted := []string{"주요 업무", "업무 관련 기술 / 활동 분야", "채용 상세"}
+	box.Content = make([]string, 3)
+	count := 0
+	doc.Find("#wrap > div.eight.wide.job-content.column > section > h4").Each(func(in int, tablehtml *goquery.Selection) {
+		_, found := Find(accepted, tablehtml.Text())
+		if found == true {
+			box.Content[count] = tablehtml.Parent().Text()
+			count++
+		}
 	})
+	box.Content = box.Content[:count]
 
+	toJson, _ := json.Marshal(box)
+	_ = ioutil.WriteFile("./dataset/new/"+crawler.Exceptspecial(box.URL)+".json", toJson, 0644)
+
+}
+func Find(slice []string, val string) (int, bool) {
+	for i, item := range slice {
+		if item == val {
+			return i, true
+		}
+	}
+	return -1, false
+}
+
+func Start() {
+	list := Rocketpunch()
+	for _, row := range list {
+		BodyText(row)
+	}
 }
