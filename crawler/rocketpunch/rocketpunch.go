@@ -44,12 +44,11 @@ func Rocketpunch() []crawler.Job {
 	}
 	t, _ := strconv.Atoi(totalPage)
 	for i := 1; i <= t; i++ { //페이지 단위
-		if i == 2 {
-			break
-		}
 		temp := make([]crawler.Job, 100)
 		var nodes []*cdp.Node
 		var detailNode []*cdp.Node
+		var newbieNode []*cdp.Node
+		var dateNode []*cdp.Node
 		var origin string
 		sliceCap := 0
 
@@ -65,27 +64,50 @@ func Rocketpunch() []crawler.Job {
 			err = chromedp.Run(ctx,
 				chromedp.Nodes("#company-list > div:nth-child("+nodeNum+") > div.content > div.company-jobs-detail > div.job-detail > div > a.nowrap.job-title.primary.link",
 					&detailNode),
+				chromedp.Nodes("#company-list > div:nth-child("+nodeNum+") > div.content > div.company-jobs-detail > div.job-detail > div > span.job-stat-info",
+					&newbieNode),
+				chromedp.Nodes("#company-list > div:nth-child("+nodeNum+") > div.content > div.company-jobs-detail > div.job-detail > div.job-dates",
+					&dateNode),
 				chromedp.Text(`#company-list > div:nth-child(`+nodeNum+`) > div.content > div.company-name > a:nth-child(1) > h4 > strong`,
 					&origin),
 			)
 
 			crawler.ErrHandler(err)
-
+			tempSliceCap := sliceCap
 			for _, row := range detailNode {
 				temp[sliceCap].Title = row.Children[0].NodeValue
 				temp[sliceCap].URL = "https://www.rocketpunch.com/" + row.AttributeValue("href")
 				temp[sliceCap].Origin = origin
 				sliceCap++
 			}
+
+			sliceCap = tempSliceCap
+			for _, row := range newbieNode {
+				temp[sliceCap].Newbie = crawler.OnlyKorean(row.Children[0].NodeValue)
+				sliceCap++
+			}
+
+			sliceCap = tempSliceCap
+			for _, row := range dateNode {
+				var tt string
+				p := strconv.Itoa(int(row.ChildNodeCount))
+				err = chromedp.Run(ctx,
+					chromedp.Text("#company-list > div:nth-child("+nodeNum+") > div.content > div.company-jobs-detail > div.job-detail > div.job-dates > span:nth-child("+p+")",
+						&tt),
+				)
+				temp[sliceCap].StartDate = crawler.ExceptKorean(tt)
+				sliceCap++
+			}
+
 		}
 		temp = temp[0:sliceCap]
 		crawledData = append(crawledData, temp...)
 	}
+
 	return crawledData
 }
 
 func BodyText(box crawler.Job) {
-	log.Println(box.URL)
 	res, err := http.Get(box.URL)
 	if err != nil {
 		log.Fatal(err)

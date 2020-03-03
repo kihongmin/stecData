@@ -1,8 +1,6 @@
 package main
 
-import (
-	"geekermeter-data/crawler/rocketpunch"
-)
+import "geekermeter-data/crawler/rocketpunch"
 
 func main() {
 
