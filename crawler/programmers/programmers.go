@@ -34,7 +34,9 @@ func Programmers() []crawler.Job {
 
 		//url & title node
 		var nodes []*cdp.Node
-		err = chromedp.Run(ctx, chromedp.Nodes("#list-positions-wrapper > ul > li > div.item-body > h4 > a", &nodes))
+		err = chromedp.Run(ctx,
+			chromedp.Nodes("#list-positions-wrapper > ul > li > div.item-body > h4 > a", &nodes),
+		)
 		crawler.ErrHandler(err)
 		for i, row := range nodes {
 			temp[i].URL = "https://programmers.co.kr" + row.AttributeValue("href")

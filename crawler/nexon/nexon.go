@@ -2,11 +2,16 @@ package nexon
 
 import (
 	"context"
+	"encoding/json"
+	"fmt"
 	"geekermeter-data/crawler"
+	"io/ioutil"
 	"log"
+	"net/http"
 	"strconv"
 	"time"
 
+	"github.com/PuerkitoBio/goquery"
 	"github.com/chromedp/cdproto/cdp"
 	"github.com/chromedp/chromedp"
 )
@@ -43,16 +48,24 @@ func Nexon() []crawler.Job {
 	t, _ := strconv.Atoi(totalPage)
 
 	for i := 0; i <= t; i++ {
-		temp := make([]crawler.Job, 10)
 		var nodes []*cdp.Node
 		var titleNode []*cdp.Node
+		var newbieNode []*cdp.Node
+		var countNode []*cdp.Node
 
 		err := chromedp.Run(ctx,
 			chromedp.Sleep(2*time.Second),
 			chromedp.Nodes("#con_right > div.content > table > tbody > tr > td.tleft.fc_02 > a", &nodes, chromedp.ByQueryAll),
 			chromedp.Nodes("#con_right > div.content > table > tbody > tr > td.tleft.fc_02 > a > span", &titleNode, chromedp.ByQueryAll),
+			chromedp.Nodes("#con_right > div.content > table > tbody > tr > td:nth-child(2)", &newbieNode, chromedp.ByQueryAll),
+			chromedp.Nodes("#con_right > div.content > table > tbody", &countNode, chromedp.ByQueryAll),
 		)
 		crawler.ErrHandler(err)
+		var count int64
+		for _, row := range countNode {
+			count = row.ChildNodeCount
+		}
+		temp := make([]crawler.Job, count)
 
 		for l, row := range nodes {
 			temp[l].URL = "https://career.nexon.com" + row.AttributeValue("href")
@@ -60,6 +73,17 @@ func Nexon() []crawler.Job {
 		for l, row := range titleNode {
 			temp[l].Title = row.Children[0].NodeValue
 			temp[l].Origin = "nexon"
+		}
+		for l, row := range newbieNode {
+			temp[l].Newbie = row.Children[0].NodeValue
+		}
+
+		for i := 1; i <= int(count); i++ {
+			t := strconv.Itoa(i)
+			err := chromedp.Run(ctx,
+				chromedp.Text("#con_right > div.content > table > tbody > tr:nth-child("+t+") > td:nth-child(6)", &temp[i-1].StartDate),
+			)
+			crawler.ErrHandler(err)
 		}
 
 		crawledData = append(crawledData, temp...)
@@ -71,11 +95,31 @@ func Nexon() []crawler.Job {
 			crawler.ErrHandler(err)
 		}
 	}
-
-	for i, _ := range crawledData {
-		log.Println(crawledData[i].URL)
-		log.Println(crawledData[i].Title)
-		log.Println(crawledData[i].Origin)
-	}
 	return crawledData
+}
+
+func BodyText(box crawler.Job) {
+	res, err := http.Get(box.URL)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	defer res.Body.Close()
+	if res.StatusCode != 200 {
+		log.Fatal()
+	}
+
+	doc, err := goquery.NewDocumentFromReader(res.Body)
+	if err != nil {
+		fmt.Println("No url found")
+		log.Fatal(err)
+	}
+	box.Content = make([]string, 1)
+	doc.Find("#con_right > div.content > div.list_txt01").Each(func(in int, tablehtml *goquery.Selection) {
+		box.Content[0] = tablehtml.Text()
+	})
+
+	toJson, _ := json.Marshal(box)
+	_ = ioutil.WriteFile("./dataset/new/"+crawler.Exceptspecial(box.URL)+".json", toJson, 0644)
+
 }
