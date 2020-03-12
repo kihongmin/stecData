@@ -29,7 +29,7 @@
 # 진행상황
 
 |사이트|URL|Title|origin|start_date|newbie|content|auto|
-|---|---|---|---|---|---|---|---|
+|:--:|:--:|:--:|:--:|:--:|:--:|:--:|:--:|
 |coupang|O|X|X|X|X|X|X|
 |kakao|O|X|X|X|X|X|X|
 |naver|O|X|X|X|X|X|X|
