@@ -118,6 +118,7 @@ func BodyText(box crawler.Job) {
 	doc.Find("#con_right > div.content > div.list_txt01").Each(func(in int, tablehtml *goquery.Selection) {
 		box.Content[0] = tablehtml.Text()
 	})
+	log.Println(box.Content[0])
 
 	toJson, _ := json.Marshal(box)
 	_ = ioutil.WriteFile("./dataset/new/"+crawler.Exceptspecial(box.URL)+".json", toJson, 0644)

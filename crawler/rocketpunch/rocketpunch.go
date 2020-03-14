@@ -137,7 +137,7 @@ func BodyText(box crawler.Job) {
 	box.Content = box.Content[:count]
 
 	toJson, _ := json.Marshal(box)
-	_ = ioutil.WriteFile("./dataset/new/"+crawler.Exceptspecial(box.URL)+".json", toJson, 0644)
+	_ = ioutil.WriteFile("./dataset/20200312/"+crawler.Exceptspecial(box.URL)+".json", toJson, 0644)
 
 }
 func Find(slice []string, val string) (int, bool) {
