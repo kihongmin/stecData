@@ -44,6 +44,7 @@ func Rocketpunch() []crawler.Job {
 	}
 	t, _ := strconv.Atoi(totalPage)
 	for i := 1; i <= t; i++ { //페이지 단위
+		log.Println("Current Page : ", i)
 		temp := make([]crawler.Job, 100)
 		var nodes []*cdp.Node
 		var detailNode []*cdp.Node
@@ -150,7 +151,9 @@ func Find(slice []string, val string) (int, bool) {
 }
 
 func Start() {
+	log.Println("Start crawl Rocketpunch")
 	list := Rocketpunch()
+	log.Println("End crawl Rocketpunch")
 	for _, row := range list {
 		BodyText(row)
 	}

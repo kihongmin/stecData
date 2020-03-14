@@ -28,14 +28,18 @@ func Programmers() []crawler.Job {
 		chromedp.Location(&loc),
 	)
 	crawler.ErrHandler(err)
-
+	pageNum := 1
 	for {
+		log.Println("Current Page : ", pageNum)
+		pageNum++
 		temp := make([]crawler.Job, 20) // 최소단위 : 20
 
 		//url & title node
 		var nodes []*cdp.Node
+		var newbieNode []*cdp.Node
 		err = chromedp.Run(ctx,
 			chromedp.Nodes("#list-positions-wrapper > ul > li > div.item-body > h4 > a", &nodes),
+			chromedp.Nodes("#list-positions-wrapper > ul > li > div.item-body > ul.company-info > li.experience", &newbieNode),
 		)
 		crawler.ErrHandler(err)
 		for i, row := range nodes {
@@ -43,7 +47,11 @@ func Programmers() []crawler.Job {
 			temp[i].Title = row.Children[0].NodeValue
 		}
 		chromedp.Sleep(1 * time.Second)
-
+		for i, row := range newbieNode {
+			err = chromedp.Run(ctx,
+				chromedp.Text(row.FullXPath(), &temp[i].Newbie),
+			)
+		}
 		//company-name node
 		var nameNode []*cdp.Node
 		err = chromedp.Run(ctx, chromedp.Nodes("#list-positions-wrapper > ul > li> div.item-body > h5", &nameNode, chromedp.ByQueryAll))
@@ -75,7 +83,6 @@ func Programmers() []crawler.Job {
 }
 
 func BodyText(box crawler.Job) { //현재 쓸데없는 값까지 하는 중->예외처리 실패로 인해..
-	log.Println(box.URL)
 	ctx, cancel := chromedp.NewContext(context.Background())
 	defer cancel()
 
@@ -88,12 +95,31 @@ func BodyText(box crawler.Job) { //현재 쓸데없는 값까지 하는 중->예
 	crawler.ErrHandler(err)
 
 	var nodes []*cdp.Node
+	var candNodes []*cdp.Node
 	var sectionName string
 	err = chromedp.Run(ctx,
 		chromedp.Nodes("body > div.main > div.position-show > div > div > div.content-body.col-item.col-xs-12.col-sm-12.col-md-12.col-lg-8>section",
-			&nodes))
+			&nodes),
+		chromedp.Nodes("body > div.main > div.position-show > div > div > div.content-body.col-item.col-xs-12.col-sm-12.col-md-12.col-lg-8 > section.section-summary > table > tbody > tr",
+			&candNodes),
+	)
 	crawler.ErrHandler(err)
+	for _, row := range candNodes {
+		next_html := row.FullXPath() + "/td[2]"
+		var temp string
+		err = chromedp.Run(ctx,
+			chromedp.Text(next_html,
+				&temp),
+		)
+		if temp == "기간" {
+			err = chromedp.Run(ctx,
+				chromedp.Text(row.FullXPath()+"/td[3]",
+					&box.StartDate),
+			)
+		}
 
+		crawler.ErrHandler(err)
+	}
 	acceptList := []string{"section-stacks", "section-position", "section-requirements", "section-preference"}
 	presentList := make([]string, 4)
 	presentNum := 0
@@ -114,7 +140,7 @@ func BodyText(box crawler.Job) { //현재 쓸데없는 값까지 하는 중->예
 	}
 
 	doc, _ := json.Marshal(box)
-	_ = ioutil.WriteFile("./dataset/new/"+crawler.Exceptspecial(box.URL)+".json", doc, 0644)
+	_ = ioutil.WriteFile("./dataset/test/"+crawler.Exceptspecial(box.URL)+".json", doc, 0644)
 
 }
 
@@ -142,4 +168,13 @@ func Find(slice []string, val string) (int, bool) {
 		}
 	}
 	return -1, false
+}
+
+func Start() {
+	log.Println("Start crawl Programmers")
+	list := Programmers()
+	log.Println("End crawl Programmers")
+	for _, row := range list {
+		BodyText(row)
+	}
 }

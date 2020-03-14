@@ -1,6 +1,6 @@
 package main
 
-import "geekermeter-data/crawler/rocketpunch"
+import "geekermeter-data/crawler/programmers"
 
 func main() {
 
@@ -14,5 +14,6 @@ func main() {
 	//naver.Naver()
 	//ncsoft.Ncsoft()
 	//netmarble.Netmarble()
-	rocketpunch.Start()
+	programmers.Start()
+
 }
