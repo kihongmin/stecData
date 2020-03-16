@@ -132,7 +132,6 @@ func Start() {
 			start++
 			continue
 		}
-
 		BodyText(row)
 	}
 }
