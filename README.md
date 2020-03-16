@@ -34,7 +34,7 @@
 |kakao|O|X|X|X|X|X|X|
 |naver|O|X|X|X|X|X|X|
 |ncsoft|O|X|X|X|X|X|X|
-|netmarble|O|X|X|X|X|X|X|
-|nexon|O|O|O|O|O|O|X|X|
+|netmarble|O|O|O|O|O|O|O|
+|nexon|O|O|O|O|O|O|O|
 |programmers|O|O|O|O|O|O|O|
 |rocketpunch|O|O|O|O|O|O|O|
