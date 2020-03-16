@@ -3,15 +3,12 @@ package nexon
 import (
 	"context"
 	"encoding/json"
-	"fmt"
 	"geekermeter-data/crawler"
 	"io/ioutil"
 	"log"
-	"net/http"
 	"strconv"
 	"time"
 
-	"github.com/PuerkitoBio/goquery"
 	"github.com/chromedp/cdproto/cdp"
 	"github.com/chromedp/chromedp"
 )
@@ -98,29 +95,34 @@ func Nexon() []crawler.Job {
 	return crawledData
 }
 
-func BodyText(box crawler.Job) {
-	res, err := http.Get(box.URL)
-	if err != nil {
-		log.Fatal(err)
-	}
+func BodyText(box crawler.Job) { //현재 쓸데없는 값까지 하는 중->예외처리 실패로 인해..
+	ctx, cancel := chromedp.NewContext(context.Background())
+	defer cancel()
 
-	defer res.Body.Close()
-	if res.StatusCode != 200 {
-		log.Fatal()
-	}
-
-	doc, err := goquery.NewDocumentFromReader(res.Body)
-	if err != nil {
-		fmt.Println("No url found")
-		log.Fatal(err)
-	}
+	// run task list
+	var loc string
+	err := chromedp.Run(ctx,
+		chromedp.Navigate(box.URL),
+		chromedp.Location(&loc),
+	)
+	crawler.ErrHandler(err)
 	box.Content = make([]string, 1)
-	doc.Find("#con_right > div.content > div.list_txt01").Each(func(in int, tablehtml *goquery.Selection) {
-		box.Content[0] = tablehtml.Text()
-	})
+	err = chromedp.Run(ctx,
+		chromedp.Text("#con_right > div.content > div.list_txt01",
+			&box.Content[0]),
+	)
 	log.Println(box.Content[0])
+	crawler.ErrHandler(err)
+	doc, _ := json.Marshal(box)
+	_ = ioutil.WriteFile("./dataset/tmp/"+crawler.Exceptspecial(box.URL)+".json", doc, 0644)
 
-	toJson, _ := json.Marshal(box)
-	_ = ioutil.WriteFile("./dataset/new/"+crawler.Exceptspecial(box.URL)+".json", toJson, 0644)
+}
 
+func Start() {
+	log.Println("Start crawl Nexon")
+	list := Nexon()
+	log.Println("End crawl Nexon")
+	for _, row := range list {
+		BodyText(row)
+	}
 }
