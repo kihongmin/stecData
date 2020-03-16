@@ -111,7 +111,7 @@ func BodyText(box crawler.Job) { //현재 쓸데없는 값까지 하는 중->예
 		chromedp.Text("#con_right > div.content > div.list_txt01",
 			&box.Content[0]),
 	)
-	log.Println(box.Content[0])
+
 	crawler.ErrHandler(err)
 	doc, _ := json.Marshal(box)
 	_ = ioutil.WriteFile("./dataset/tmp/"+crawler.Exceptspecial(box.URL)+".json", doc, 0644)

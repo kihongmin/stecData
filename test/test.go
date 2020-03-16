@@ -1,7 +1,7 @@
 package main
 
 import (
-	"geekermeter-data/crawler/nexon"
+	"geekermeter-data/crawler/netmarble"
 )
 
 func main() {
@@ -9,8 +9,9 @@ func main() {
 	//kakao.Kakao()
 	//coupang.Coupang()
 	//var box crawler.Job
-	//box.URL = "https://career.nexon.com/user/recruit/notice/noticeView?joinCorp=NX&reNo=20170363"
-	nexon.Start()
+	//box.URL = "https://m.netmarble.com/rem/www/notice.jsp?anno_id=1583010&annotype=all"
+	netmarble.Start()
+	//nexon.Start()
 	//rocketpunch.Start()
 	//crafton.Crafton()
 	//naver.Naver()
