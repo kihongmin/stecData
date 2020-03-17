@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"io/ioutil"
 	"log"
+	"strconv"
 	"time"
 
 	"geekermeter-data/crawler"
@@ -34,6 +35,7 @@ func Netmarble() []crawler.Job {
 	//find max page
 	var pageNode []*cdp.Node
 	var totalPage string
+	totalnum := 0
 	clickerr := chromedp.Run(ctx,
 		chromedp.Nodes("#pageCount", &pageNode, chromedp.ByID),
 	)
@@ -63,6 +65,7 @@ func Netmarble() []crawler.Job {
 		for i, row := range nodes {
 			temp[i].URL = "https://m.netmarble.com/rem/www" + row.AttributeValue("href")[1:]
 			temp[i].Origin = "Netmarble"
+			totalnum++
 		}
 		//title
 		for i, row := range titleNode {
@@ -94,11 +97,11 @@ func Netmarble() []crawler.Job {
 			)
 		}
 	}
-
+	crawledData = crawledData[0:totalnum]
 	return crawledData
 }
 
-func BodyText(box crawler.Job) { //현재 쓸데없는 값까지 하는 중->예외처리 실패로 인해..
+func BodyText(box crawler.Job, forname int) { //현재 쓸데없는 값까지 하는 중->예외처리 실패로 인해..
 	ctx, cancel := chromedp.NewContext(context.Background())
 	defer cancel()
 
@@ -118,11 +121,13 @@ func BodyText(box crawler.Job) { //현재 쓸데없는 값까지 하는 중->예
 
 	crawler.ErrHandler(err)
 	doc, _ := json.Marshal(box)
-	_ = ioutil.WriteFile("./dataset/tmp/"+crawler.Exceptspecial(box.URL)+".json", doc, 0644)
+	//_ = ioutil.WriteFile("./dataset/tmp/"+crawler.Exceptspecial(box.URL)+".json", doc, 0644)
+	t := strconv.Itoa(forname)
 
+	_ = ioutil.WriteFile("./dataset/tmp/"+t+".json", doc, 0644)
 }
 
-func Start() {
+func Start(forname int) int {
 	log.Println("Start crawl Netmarble")
 	list := Netmarble()
 	log.Println("End crawl Netmarble")
@@ -132,6 +137,8 @@ func Start() {
 			start++
 			continue
 		}
-		BodyText(row)
+		BodyText(row, forname)
+		forname++
 	}
+	return forname
 }

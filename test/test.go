@@ -2,6 +2,8 @@ package main
 
 import (
 	"geekermeter-data/crawler/netmarble"
+	"geekermeter-data/crawler/nexon"
+	"geekermeter-data/crawler/rocketpunch"
 )
 
 func main() {
@@ -10,7 +12,7 @@ func main() {
 	//coupang.Coupang()
 	//var box crawler.Job
 	//box.URL = "https://m.netmarble.com/rem/www/notice.jsp?anno_id=1583010&annotype=all"
-	netmarble.Start()
+	//netmarble.Start()
 	//nexon.Start()
 	//rocketpunch.Start()
 	//crafton.Crafton()
@@ -19,4 +21,7 @@ func main() {
 	//netmarble.Netmarble()
 	//programmers.Start()
 
+	forname := netmarble.Start(0)
+	forname = nexon.Start(forname)
+	forname = rocketpunch.Start(forname)
 }

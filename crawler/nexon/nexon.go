@@ -95,7 +95,7 @@ func Nexon() []crawler.Job {
 	return crawledData
 }
 
-func BodyText(box crawler.Job) { //현재 쓸데없는 값까지 하는 중->예외처리 실패로 인해..
+func BodyText(box crawler.Job, forname int) { //현재 쓸데없는 값까지 하는 중->예외처리 실패로 인해..
 	ctx, cancel := chromedp.NewContext(context.Background())
 	defer cancel()
 
@@ -114,15 +114,19 @@ func BodyText(box crawler.Job) { //현재 쓸데없는 값까지 하는 중->예
 
 	crawler.ErrHandler(err)
 	doc, _ := json.Marshal(box)
-	_ = ioutil.WriteFile("./dataset/tmp/"+crawler.Exceptspecial(box.URL)+".json", doc, 0644)
+	t := strconv.Itoa(forname)
+	_ = ioutil.WriteFile("./dataset/tmp/"+t+".json", doc, 0644)
+	//_ = ioutil.WriteFile("./dataset/tmp/"+crawler.Exceptspecial(box.URL)+".json", doc, 0644)
 
 }
 
-func Start() {
+func Start(forname int) int {
 	log.Println("Start crawl Nexon")
 	list := Nexon()
 	log.Println("End crawl Nexon")
 	for _, row := range list {
-		BodyText(row)
+		BodyText(row, forname)
+		forname++
 	}
+	return forname
 }

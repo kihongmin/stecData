@@ -108,7 +108,7 @@ func Rocketpunch() []crawler.Job {
 	return crawledData
 }
 
-func BodyText(box crawler.Job) {
+func BodyText(box crawler.Job, forname int) {
 	res, err := http.Get(box.URL)
 	if err != nil {
 		log.Fatal(err)
@@ -138,7 +138,10 @@ func BodyText(box crawler.Job) {
 	box.Content = box.Content[:count]
 
 	toJson, _ := json.Marshal(box)
-	_ = ioutil.WriteFile("./dataset/20200312/"+crawler.Exceptspecial(box.URL)+".json", toJson, 0644)
+
+	t := strconv.Itoa(forname)
+	_ = ioutil.WriteFile("./dataset/tmp/"+t+".json", toJson, 0644)
+	//_ = ioutil.WriteFile("./dataset/20200312/"+crawler.Exceptspecial(box.URL)+".json", toJson, 0644)
 
 }
 func Find(slice []string, val string) (int, bool) {
@@ -150,11 +153,13 @@ func Find(slice []string, val string) (int, bool) {
 	return -1, false
 }
 
-func Start() {
+func Start(forname int) int {
 	log.Println("Start crawl Rocketpunch")
 	list := Rocketpunch()
 	log.Println("End crawl Rocketpunch")
 	for _, row := range list {
-		BodyText(row)
+		BodyText(row, forname)
+		forname++
 	}
+	return forname
 }
