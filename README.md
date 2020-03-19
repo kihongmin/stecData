@@ -19,7 +19,6 @@
 	- coupang
 	- kakao
 	- naver
-	- ncsoft
 	- netmarble
 	- nexon
 	- programmers
@@ -32,8 +31,7 @@
 |:--:|:--:|:--:|:--:|:--:|:--:|:--:|:--:|
 |coupang|O|X|X|X|X|X|X|
 |kakao|O|X|X|X|X|X|X|
-|naver|O|X|X|X|X|X|X|
-|ncsoft|O|X|X|X|X|X|X|
+|naver|O|O|O|O|X|O|O|
 |netmarble|O|O|O|O|O|O|O|
 |nexon|O|O|O|O|O|O|O|
 |programmers|O|O|O|O|O|O|O|
