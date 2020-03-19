@@ -2,10 +2,17 @@ package naver
 
 import (
 	"context"
+	"encoding/json"
+	"fmt"
 	"geekermeter-data/crawler"
+	"io/ioutil"
 	"log"
+	"math/rand"
+	"net/http"
+	"strconv"
 	"time"
 
+	"github.com/PuerkitoBio/goquery"
 	"github.com/chromedp/cdproto/cdp"
 	"github.com/chromedp/chromedp"
 )
@@ -23,29 +30,47 @@ func Naver() []crawler.Job { //아직 개발 직군만 크롤링임.
 	var loc string
 	err := chromedp.Run(ctx,
 		chromedp.Navigate(baseURL),
+		chromedp.Click("#entType > a"),
 		chromedp.Location(&loc),
 	)
 	crawler.ErrHandler(err)
-	PageCount := 10
+
+	var nodes []*cdp.Node
+	temp := 0
+	count := 0
 	for {
-		chromedp.Sleep(2 * time.Second)
+		k := rand.NormFloat64()*0.1 + 1
+		time.Sleep(time.Duration(k) * time.Second)
+
 		clickerr := chromedp.Run(ctx,
+			chromedp.Nodes("#jobListDiv > ul >li>a", &nodes),
 			chromedp.Click("#moreDiv > button"),
 		)
-		PageCount += 10
-		if clickerr != nil {
+		log.Println(len(nodes), temp, count)
+		if count == 10 {
 			break
+		} else if temp == len(nodes) {
+			count++
+		} else if temp != len(nodes) {
+			count = 0
 		}
+		crawler.ErrHandler(clickerr)
+
+		temp = len(nodes)
 	}
-	chromedp.Sleep(2 * time.Second)
+
+	chromedp.Sleep(3 * time.Second)
 	log.Printf("\nclick success")
-	crawledData := make([]crawler.Job, PageCount)
+	crawledData := make([]crawler.Job, len(nodes))
 	//url node
-	var nodes []*cdp.Node
+
 	var titleNodes []*cdp.Node
+	var dateNodes []*cdp.Node
 	err = chromedp.Run(ctx,
-		chromedp.Nodes("#jobListDiv > ul > li > a", &nodes),
-		chromedp.Nodes("#jobListDiv > ul > li > a > span > strong", &titleNodes, chromedp.ByQueryAll),
+		chromedp.Nodes("#jobListDiv > ul > li > a > span > strong",
+			&titleNodes, chromedp.ByQueryAll),
+		chromedp.Nodes("#jobListDiv > ul > li > a > span > em",
+			&dateNodes, chromedp.ByQueryAll),
 	)
 
 	for i, k := range nodes {
@@ -53,26 +78,53 @@ func Naver() []crawler.Job { //아직 개발 직군만 크롤링임.
 	}
 	//title node
 	for i, row := range titleNodes {
-		log.Println(i)
 		crawledData[i].Title = row.Children[0].NodeValue
 		crawledData[i].Origin = "naver"
 	}
 
-	//date node
-	/*
-		var dateNode []*cdp.Node
-		if err = chromedp.Run(ctx, chromedp.Nodes("#jobListDiv > ul > li > a > span > em", &dateNode, chromedp.ByQueryAll)); err != nil {
-			log.Fatal(err)
-		}
-		for i, row := range dateNode {
-			crawledData[i].date = row.Children[0].NodeValue
-		}*/
-	/*
-		for _, dat := range crawledData {
-			log.Printf("%s", dat.Title)
-			log.Printf("%s", dat.URL)
-			log.Printf("%s", dat.Origin)
-		}
-	*/
+	for i, row := range dateNodes {
+		crawledData[i].StartDate = row.Children[0].NodeValue
+	}
+
 	return crawledData
+}
+
+func BodyText(box crawler.Job, forname int) {
+	res, err := http.Get(box.URL)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	defer res.Body.Close()
+	if res.StatusCode != 200 {
+		log.Fatal()
+	}
+
+	doc, err := goquery.NewDocumentFromReader(res.Body)
+	if err != nil {
+		fmt.Println("No url found")
+		log.Fatal(err)
+	}
+
+	box.Content = make([]string, 1)
+	doc.Find("#content > div > div.career_detail > div.dtl_context > div.context_area").Each(func(in int, tablehtml *goquery.Selection) {
+		box.Content[0] = tablehtml.Text()
+	})
+
+	toJson, _ := json.Marshal(box)
+
+	t := strconv.Itoa(forname)
+	_ = ioutil.WriteFile("./dataset/tmp/"+t+".json", toJson, 0644)
+	//_ = ioutil.WriteFile("./dataset/20200312/"+crawler.Exceptspecial(box.URL)+".json", toJson, 0644)
+
+}
+func Start(forname int) int {
+	log.Println("Start crawl Naver")
+	list := Naver()
+	log.Println("End crawl Naver")
+	for _, row := range list {
+		BodyText(row, forname)
+		forname++
+	}
+	return forname
 }
