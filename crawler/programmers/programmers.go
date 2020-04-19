@@ -49,9 +49,11 @@ func Programmers() []crawler.Job {
 		}
 		chromedp.Sleep(1 * time.Second)
 		for i, row := range newbieNode {
+			var tempnew string
 			err = chromedp.Run(ctx,
-				chromedp.Text(row.FullXPath(), &temp[i].Newbie),
+				chromedp.Text(row.FullXPath(), &tempnew),
 			)
+			temp[i].Newbie = crawler.Getnewbie(tempnew)
 		}
 		//company-name node
 		var nameNode []*cdp.Node
@@ -174,13 +176,15 @@ func Find(slice []string, val string) (int, bool) {
 	return -1, false
 }
 
-func Start(forname int) int {
+func Start(forname int, input_date string) int {
 	log.Println("Start crawl Programmers")
 	list := Programmers()
 	log.Println("End crawl Programmers")
 	for _, row := range list {
-		BodyText(row, forname)
-		forname++
+		if row.StartDate == input_date {
+			BodyText(row, forname)
+			forname++
+		}
 	}
 	return forname
 }

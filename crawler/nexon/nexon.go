@@ -72,7 +72,7 @@ func Nexon() []crawler.Job {
 			temp[l].Origin = "nexon"
 		}
 		for l, row := range newbieNode {
-			temp[l].Newbie = row.Children[0].NodeValue
+			temp[l].Newbie = crawler.Getnewbie(row.Children[0].NodeValue)
 		}
 
 		for i := 1; i <= int(count); i++ {
@@ -120,13 +120,15 @@ func BodyText(box crawler.Job, forname int) { //현재 쓸데없는 값까지 �
 
 }
 
-func Start(forname int) int {
+func Start(forname int, input_date string) int {
 	log.Println("Start crawl Nexon")
 	list := Nexon()
 	log.Println("End crawl Nexon")
 	for _, row := range list {
-		BodyText(row, forname)
-		forname++
+		if row.StartDate == input_date {
+			BodyText(row, forname)
+			forname++
+		}
 	}
 	return forname
 }

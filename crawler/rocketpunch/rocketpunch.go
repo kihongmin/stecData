@@ -82,8 +82,10 @@ func Rocketpunch() []crawler.Job {
 
 			sliceCap = tempSliceCap
 			for _, row := range newbieNode {
-				//temp[sliceCap].Newbie = crawler.Getnewbie(row.Children[0].NodeValue)
-				log.Println(crawler.Getnewbie(row.Children[0].NodeValue), crawler.Newbie(crawler.Getnewbie(row.Children[0].NodeValue)))
+				//int8 로 반환
+				temp[sliceCap].Newbie = crawler.Getnewbie(row.Children[0].NodeValue)
+				//crawler.Gentnewbie에서 목표값으로 반환
+				//temp[sliceCap].Newbie = crawler.Newbie(crawler.Getnewbie(row.Children[0].NodeValue))
 				sliceCap++
 			}
 

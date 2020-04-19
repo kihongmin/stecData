@@ -12,7 +12,7 @@ type Job struct {
 	Title     string   `json:"title"`
 	Origin    string   `json:"origin"`
 	StartDate string   `json:"start_date"`
-	Newbie    string   `json:"newbie"` // 신입, 경력 둘다의 경우
+	Newbie    int8     `json:"newbie"` // 신입, 경력 둘다의 경우
 	Content   []string `json:"content"`
 }
 
@@ -30,8 +30,7 @@ type URLs struct {
 type Newbie int8
 
 const (
-	nothing = 1 + iota
-	intern
+	intern = 1 + iota
 	newbie
 	intnew
 	expert
@@ -41,7 +40,6 @@ const (
 )
 
 var newbies = [...]string{
-	"nothing",   // 000
 	"intern",    // 001
 	"newbie",    // 010
 	"intnew",    // 011
@@ -90,6 +88,10 @@ func Getnewbie(word string) int8 {
 	i := regexp.MustCompile(`인턴`)
 	n := regexp.MustCompile(`신입`)
 	e := regexp.MustCompile(`경력`)
+	dm := regexp.MustCompile(`경력 무관`)
+	if dm.MatchString(word) {
+		return level + 2
+	}
 	if i.MatchString(word) {
 		level++
 	}

@@ -72,7 +72,8 @@ func Netmarble() []crawler.Job {
 			temp[i].Title = row.Children[0].NodeValue
 		}
 		for i, row := range newbieNode {
-			temp[i].Newbie = row.Children[0].NodeValue
+			temp[i].Newbie = crawler.Getnewbie(row.Children[0].NodeValue)
+			log.Println(row.Children[0].NodeValue, temp[i].Newbie)
 		}
 		for i, row := range dateNode {
 			temp[i].StartDate = row.Children[0].NodeValue[:8]
@@ -127,7 +128,7 @@ func BodyText(box crawler.Job, forname int) { //현재 쓸데없는 값까지 �
 	_ = ioutil.WriteFile("./dataset/tmp/"+t+".json", doc, 0644)
 }
 
-func Start(forname int) int {
+func Start(forname int, input_date string) int {
 	log.Println("Start crawl Netmarble")
 	list := Netmarble()
 	log.Println("End crawl Netmarble")
@@ -137,8 +138,11 @@ func Start(forname int) int {
 			start++
 			continue
 		}
-		BodyText(row, forname)
-		forname++
+		if row.StartDate == input_date {
+			BodyText(row, forname)
+			forname++
+		}
+
 	}
 	return forname
 }
