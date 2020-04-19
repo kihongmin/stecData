@@ -3,15 +3,12 @@ package rocketpunch
 import (
 	"context"
 	"encoding/json"
-	"fmt"
 	"geekermeter-data/crawler"
 	"io/ioutil"
 	"log"
-	"net/http"
 	"strconv"
 	"time"
 
-	"github.com/PuerkitoBio/goquery"
 	"github.com/chromedp/cdproto/cdp"
 	"github.com/chromedp/chromedp"
 )
@@ -23,6 +20,7 @@ var (
 func Rocketpunch() []crawler.Job {
 	var crawledData []crawler.Job
 	ctx, cancel := chromedp.NewContext(context.Background())
+
 	defer cancel()
 
 	var loc string
@@ -45,7 +43,7 @@ func Rocketpunch() []crawler.Job {
 	t, _ := strconv.Atoi(totalPage)
 	for i := 1; i <= t; i++ { //페이지 단위
 		log.Println("Current Page : ", i)
-		temp := make([]crawler.Job, 100)
+		temp := make([]crawler.Job, 200)
 		var nodes []*cdp.Node
 		var detailNode []*cdp.Node
 		var newbieNode []*cdp.Node
@@ -77,14 +75,15 @@ func Rocketpunch() []crawler.Job {
 			tempSliceCap := sliceCap
 			for _, row := range detailNode {
 				temp[sliceCap].Title = row.Children[0].NodeValue
-				temp[sliceCap].URL = "https://www.rocketpunch.com/" + row.AttributeValue("href")
+				temp[sliceCap].URL = "https://www.rocketpunch.com" + row.AttributeValue("href")
 				temp[sliceCap].Origin = origin
 				sliceCap++
 			}
 
 			sliceCap = tempSliceCap
 			for _, row := range newbieNode {
-				temp[sliceCap].Newbie = crawler.OnlyKorean(row.Children[0].NodeValue)
+				//temp[sliceCap].Newbie = crawler.Getnewbie(row.Children[0].NodeValue)
+				log.Println(crawler.Getnewbie(row.Children[0].NodeValue), crawler.Newbie(crawler.Getnewbie(row.Children[0].NodeValue)))
 				sliceCap++
 			}
 
@@ -109,41 +108,64 @@ func Rocketpunch() []crawler.Job {
 }
 
 func BodyText(box crawler.Job, forname int) {
-	res, err := http.Get(box.URL)
-	if err != nil {
-		log.Fatal(err)
+	ctx, cancel := chromedp.NewContext(context.Background())
+
+	defer cancel()
+
+	// run task list
+	var loc string
+	err := chromedp.Run(ctx,
+		chromedp.Navigate(box.URL),
+		chromedp.Location(&loc),
+	)
+	crawler.ErrHandler(err)
+	log.Println(box.URL)
+	var nodes []*cdp.Node
+	var clickNodes []*cdp.Node
+	err = chromedp.Run(ctx,
+		chromedp.Nodes("#wrap > div.eight.wide.job-content.column > section > h4 > a:nth-child(1)",
+			&nodes))
+	crawler.ErrHandler(err)
+
+	clickctx, cancel := context.WithTimeout(ctx, 10*time.Second)
+	defer cancel()
+	err = chromedp.Run(clickctx,
+		chromedp.Nodes("#wrap > div.eight.wide.job-content.column > section> div > a.see-more-text",
+			&clickNodes),
+	)
+
+	for _, v := range clickNodes {
+		err = chromedp.Run(ctx,
+			chromedp.Click(v.FullXPath()),
+		)
+		crawler.ErrHandler(err)
 	}
 
-	defer res.Body.Close()
-	if res.StatusCode != 200 {
-		log.Fatal()
-	}
-
-	doc, err := goquery.NewDocumentFromReader(res.Body)
-	if err != nil {
-		fmt.Println("No url found")
-		log.Fatal(err)
-	}
-
+	var want string
 	accepted := []string{"주요 업무", "업무 관련 기술 / 활동 분야", "채용 상세"}
 	box.Content = make([]string, 3)
 	count := 0
-	doc.Find("#wrap > div.eight.wide.job-content.column > section > h4").Each(func(in int, tablehtml *goquery.Selection) {
-		_, found := Find(accepted, tablehtml.Text())
+	for _, v := range nodes {
+		err = chromedp.Run(ctx,
+			chromedp.Text(v.FullXPath(), &want),
+		)
+		_, found := Find(accepted, want)
 		if found == true {
-			box.Content[count] = tablehtml.Parent().Text()
+			err = chromedp.Run(ctx,
+				chromedp.Text(v.Parent.Parent.FullXPath(), &box.Content[count]),
+			)
+			crawler.ErrHandler(err)
 			count++
 		}
-	})
+	}
+
 	box.Content = box.Content[:count]
-
 	toJson, _ := json.Marshal(box)
-
 	t := strconv.Itoa(forname)
 	_ = ioutil.WriteFile("./dataset/tmp/"+t+".json", toJson, 0644)
-	//_ = ioutil.WriteFile("./dataset/20200312/"+crawler.Exceptspecial(box.URL)+".json", toJson, 0644)
 
 }
+
 func Find(slice []string, val string) (int, bool) {
 	for i, item := range slice {
 		if item == val {
@@ -153,13 +175,16 @@ func Find(slice []string, val string) (int, bool) {
 	return -1, false
 }
 
-func Start(forname int) int {
+//datetime은 크롤링의 대상이되는 날짜로 들어온다.
+func Start(forname int, datetime string) int {
 	log.Println("Start crawl Rocketpunch")
 	list := Rocketpunch()
 	log.Println("End crawl Rocketpunch")
 	for _, row := range list {
-		BodyText(row, forname)
-		forname++
+		if datetime == row.StartDate {
+			BodyText(row, forname)
+			forname++
+		}
 	}
 	return forname
 }

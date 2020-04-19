@@ -3,6 +3,7 @@ package crawler
 import (
 	"log"
 	"regexp"
+	//"geekermeter-data/crawler/naver"
 	//"github.com/caarlos0/env"
 )
 
@@ -26,6 +27,31 @@ type URLs struct {
 	// basic string
 	// advanced string
 }
+type Newbie int8
+
+const (
+	nothing = 1 + iota
+	intern
+	newbie
+	intnew
+	expert
+	intexp
+	newexp
+	intnewexp
+)
+
+var newbies = [...]string{
+	"nothing",   // 000
+	"intern",    // 001
+	"newbie",    // 010
+	"intnew",    // 011
+	"expert",    // 100
+	"intexp",    // 101
+	"newexp",    // 110
+	"intnewexp", //111
+}
+
+func (n Newbie) String() string { return newbies[(n-1)%7] }
 
 // errHandler is errHandler
 func ErrHandler(err error) {
@@ -56,4 +82,22 @@ func ExceptKorean(word string) string {
 	re := regexp.MustCompile(`[가-힣]+`)
 	key := re.ReplaceAllString(word, "")
 	return key
+}
+
+func Getnewbie(word string) int8 {
+	var level int8
+	level = 0
+	i := regexp.MustCompile(`인턴`)
+	n := regexp.MustCompile(`신입`)
+	e := regexp.MustCompile(`경력`)
+	if i.MatchString(word) {
+		level++
+	}
+	if n.MatchString(word) {
+		level += 2
+	}
+	if e.MatchString(word) {
+		level += 4
+	}
+	return level
 }
