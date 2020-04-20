@@ -18,6 +18,7 @@ var (
 )
 
 func Rocketpunch() []crawler.Job {
+	//now := strconv.Itoa(time.Now().Year())
 	var crawledData []crawler.Job
 	ctx, cancel := chromedp.NewContext(context.Background())
 
@@ -48,6 +49,7 @@ func Rocketpunch() []crawler.Job {
 		var detailNode []*cdp.Node
 		var newbieNode []*cdp.Node
 		var dateNode []*cdp.Node
+		var clickNodes []*cdp.Node
 		var origin string
 		sliceCap := 0
 
@@ -56,8 +58,17 @@ func Rocketpunch() []crawler.Job {
 			chromedp.Sleep(2*time.Second),
 			chromedp.Nodes("#company-list > div.company.item",
 				&nodes, chromedp.ByQueryAll),
+			chromedp.Nodes("#company-list > div > div.content > div.company-jobs-detail > a.more-jobs",
+				&clickNodes),
 		)
+
+		for _, row := range clickNodes {
+			_ = chromedp.Run(ctx,
+				chromedp.Click(row.FullXPath()),
+			)
+		}
 		crawler.ErrHandler(err)
+
 		for _, row := range nodes { //한 기업에서의 url 수집
 			nodeNum := crawler.ExtractNum(row.PartialXPathByID())
 			err = chromedp.Run(ctx,
@@ -70,17 +81,18 @@ func Rocketpunch() []crawler.Job {
 				chromedp.Text(`#company-list > div:nth-child(`+nodeNum+`) > div.content > div.company-name > a:nth-child(1) > h4 > strong`,
 					&origin),
 			)
-
 			crawler.ErrHandler(err)
+
 			tempSliceCap := sliceCap
 			for _, row := range detailNode {
 				temp[sliceCap].Title = row.Children[0].NodeValue
 				temp[sliceCap].URL = "https://www.rocketpunch.com" + row.AttributeValue("href")
 				temp[sliceCap].Origin = origin
+				log.Println(temp[sliceCap].Title)
 				sliceCap++
 			}
-
 			sliceCap = tempSliceCap
+
 			for _, row := range newbieNode {
 				//int8 로 반환
 				temp[sliceCap].Newbie = crawler.Getnewbie(row.Children[0].NodeValue)
@@ -88,22 +100,27 @@ func Rocketpunch() []crawler.Job {
 				//temp[sliceCap].Newbie = crawler.Newbie(crawler.Getnewbie(row.Children[0].NodeValue))
 				sliceCap++
 			}
-
 			sliceCap = tempSliceCap
+
 			for _, row := range dateNode {
-				var tt string
+				//var tt string
+				var kk []*cdp.Node
 				p := strconv.Itoa(int(row.ChildNodeCount))
-				err = chromedp.Run(ctx,
-					chromedp.Text("#company-list > div:nth-child("+nodeNum+") > div.content > div.company-jobs-detail > div.job-detail > div.job-dates > span:nth-child("+p+")",
-						&tt),
+				_ = chromedp.Run(ctx,
+					chromedp.Nodes(row.FullXPath()+"/span["+p+"]", &kk),
 				)
-				temp[sliceCap].StartDate = crawler.ExceptKorean(tt)
+				for _, pow := range kk {
+					temp[sliceCap].StartDate = crawler.ExceptKorean(pow.Children[0].NodeValue)
+				}
 				sliceCap++
 			}
-
 		}
 		temp = temp[0:sliceCap]
 		crawledData = append(crawledData, temp...)
+		for i := 0; i < sliceCap; i++ {
+			log.Println(temp[i].StartDate)
+			log.Println(temp[i].Newbie)
+		}
 	}
 
 	return crawledData

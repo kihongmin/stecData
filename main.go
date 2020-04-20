@@ -1,7 +1,7 @@
 package main
 
 import (
-	"geekermeter-data/crawler/netmarble"
+	"geekermeter-data/crawler/rocketpunch"
 	"time"
 )
 
@@ -10,5 +10,5 @@ func main() {
 	custom := now.AddDate(0, 0, -1).Format("2006-01-02 15:04:05")
 	input_date := custom[5:7] + "/" + custom[8:10]
 
-	netmarble.Start(0, input_date)
+	rocketpunch.Start(0, input_date)
 }
