@@ -77,7 +77,7 @@ func OnlyKorean(word string) string {
 }
 
 func ExceptKorean(word string) string {
-	re := regexp.MustCompile(`[가-힣]+|\s`)
+	re := regexp.MustCompile(`[가-힣]+|\s|/`)
 	key := re.ReplaceAllString(word, "")
 	return key
 }
