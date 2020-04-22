@@ -73,10 +73,9 @@ func Netmarble() []crawler.Job {
 		}
 		for i, row := range newbieNode {
 			temp[i].Newbie = crawler.Getnewbie(row.Children[0].NodeValue)
-			log.Println(row.Children[0].NodeValue, temp[i].Newbie)
 		}
 		for i, row := range dateNode {
-			temp[i].StartDate = row.Children[0].NodeValue[:8]
+			temp[i].StartDate = "20" + crawler.Exceptspecial(row.Children[0].NodeValue[:8])
 		}
 
 		crawledData = append(crawledData, temp...)

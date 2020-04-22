@@ -12,7 +12,7 @@ type Job struct {
 	Title     string   `json:"title"`
 	Origin    string   `json:"origin"`
 	StartDate string   `json:"start_date"`
-	Newbie    int8     `json:"newbie"` // 신입, 경력 둘다의 경우
+	Newbie    []int8   `json:"newbie"` // 신입, 경력 둘다의 경우
 	Content   []string `json:"content"`
 }
 
@@ -82,24 +82,25 @@ func ExceptKorean(word string) string {
 	return key
 }
 
-func Getnewbie(word string) int8 {
-	var level int8
-	level = 0
+func Getnewbie(word string) []int8 {
+	//인턴 10 신입 50 경력 90
+	level := make([]int8, 0, 4)
 	i := regexp.MustCompile(`인턴`)
 	n := regexp.MustCompile(`신입`)
 	e := regexp.MustCompile(`경력`)
 	dm := regexp.MustCompile(`경력 무관`)
 	if dm.MatchString(word) {
-		return level + 2
+		return append(level, 50, 90)
 	}
 	if i.MatchString(word) {
-		level++
+		level = append(level, 10)
 	}
 	if n.MatchString(word) {
-		level += 2
+		level = append(level, 50)
 	}
 	if e.MatchString(word) {
-		level += 4
+		level = append(level, 90)
 	}
+
 	return level
 }

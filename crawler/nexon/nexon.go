@@ -76,10 +76,14 @@ func Nexon() []crawler.Job {
 		}
 
 		for i := 1; i <= int(count); i++ {
+			var date string
 			t := strconv.Itoa(i)
 			err := chromedp.Run(ctx,
-				chromedp.Text("#con_right > div.content > table > tbody > tr:nth-child("+t+") > td:nth-child(6)", &temp[i-1].StartDate),
+				chromedp.Text("#con_right > div.content > table > tbody > tr:nth-child("+t+") > td:nth-child(6)", &date),
 			)
+			temp[i-1].StartDate = "20" + crawler.Exceptspecial(date)
+			log.Println(temp[i-1].StartDate)
+
 			crawler.ErrHandler(err)
 		}
 

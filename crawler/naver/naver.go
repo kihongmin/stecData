@@ -36,32 +36,28 @@ func Naver() []crawler.Job { //아직 개발 직군만 크롤링임.
 	crawler.ErrHandler(err)
 
 	var nodes []*cdp.Node
-	temp := 0
-	count := 0
-	for {
+
+	for i := 0; i < 7; i++ {
 		k := rand.NormFloat64()*0.1 + 1
 		time.Sleep(time.Duration(k) * time.Second)
-
+		var check []*cdp.Node
 		clickerr := chromedp.Run(ctx,
 			chromedp.Nodes("#jobListDiv > ul >li>a", &nodes),
+			chromedp.Nodes("#moreDiv", &check),
+		)
+
+		time.Sleep(time.Second * 2)
+
+		err = chromedp.Run(ctx,
 			chromedp.Click("#moreDiv > button"),
 		)
-		log.Println(len(nodes), temp, count)
-		if count == 10 {
-			break
-		} else if temp == len(nodes) {
-			count++
-		} else if temp != len(nodes) {
-			count = 0
-		}
 		crawler.ErrHandler(clickerr)
 
-		temp = len(nodes)
 	}
 
 	chromedp.Sleep(3 * time.Second)
 	log.Printf("\nclick success")
-	crawledData := make([]crawler.Job, len(nodes))
+
 	//url node
 
 	var titleNodes []*cdp.Node
@@ -72,6 +68,7 @@ func Naver() []crawler.Job { //아직 개발 직군만 크롤링임.
 		chromedp.Nodes("#jobListDiv > ul > li > a > span > em",
 			&dateNodes, chromedp.ByQueryAll),
 	)
+	crawledData := make([]crawler.Job, len(titleNodes))
 
 	for i, k := range nodes {
 		crawledData[i].URL = "https://recruit.navercorp.com" + k.AttributeValue("href")
@@ -79,11 +76,13 @@ func Naver() []crawler.Job { //아직 개발 직군만 크롤링임.
 	//title node
 	for i, row := range titleNodes {
 		crawledData[i].Title = row.Children[0].NodeValue
+
 		crawledData[i].Origin = "naver"
 	}
 
 	for i, row := range dateNodes {
-		crawledData[i].StartDate = row.Children[0].NodeValue
+		crawledData[i].StartDate = crawler.Exceptspecial(row.Children[0].NodeValue[:10])
+		log.Println(crawledData[i].StartDate)
 	}
 
 	return crawledData

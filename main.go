@@ -1,14 +1,15 @@
 package main
 
 import (
-	"geekermeter-data/crawler/rocketpunch"
+	"log"
 	"time"
 )
 
 func main() {
 	now := time.Now()
-	custom := now.AddDate(0, 0, -1).Format("2006-01-02 15:04:05")
-	input_date := custom[5:7] + "/" + custom[8:10]
 
-	rocketpunch.Start(0, input_date)
+	log.Println(time.Parse("2006-01-02 15:04:05", now))
+
+	//netmarble.Start(0, input_date)
+	//db.Insert(programmersJobs)
 }
