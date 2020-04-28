@@ -88,7 +88,7 @@ func Rocketpunch() []crawler.Job {
 				temp[sliceCap].Newbie = crawler.Getnewbie(row.Children[0].NodeValue)
 				//crawler.Gentnewbie에서 목표값으로 반환
 				//temp[sliceCap].Newbie = crawler.Newbie(crawler.Getnewbie(row.Children[0].NodeValue))
-				log.Println(temp[sliceCap].Newbie)
+
 				sliceCap++
 			}
 			sliceCap = tempSliceCap
@@ -116,7 +116,7 @@ func Rocketpunch() []crawler.Job {
 	return crawledData
 }
 
-func BodyText(box crawler.Job, forname int) {
+func BodyText(box crawler.Job, forname int) crawler.Job {
 	ctx, cancel := chromedp.NewContext(context.Background())
 
 	defer cancel()
@@ -128,7 +128,7 @@ func BodyText(box crawler.Job, forname int) {
 		chromedp.Location(&loc),
 	)
 	crawler.ErrHandler(err)
-	log.Println(box.URL)
+
 	var nodes []*cdp.Node
 	var clickNodes []*cdp.Node
 	err = chromedp.Run(ctx,
@@ -173,6 +173,7 @@ func BodyText(box crawler.Job, forname int) {
 	t := strconv.Itoa(forname)
 	_ = ioutil.WriteFile("./dataset/tmp/"+t+".json", toJson, 0644)
 
+	return box
 }
 
 func Find(slice []string, val string) (int, bool) {
@@ -185,15 +186,22 @@ func Find(slice []string, val string) (int, bool) {
 }
 
 //datetime은 크롤링의 대상이되는 날짜로 들어온다.
-func Start(forname int, datetime string) int {
+func Start(forname int, datetime string) []crawler.Job {
 	log.Println("Start crawl Rocketpunch")
 	list := Rocketpunch()
 	log.Println("End crawl Rocketpunch")
+	var crawledData []crawler.Job
 	for _, row := range list {
 		if datetime == row.StartDate {
-			BodyText(row, forname)
+			crawledData = append(crawledData, BodyText(row, forname))
 			forname++
 		}
 	}
-	return forname
+	for _, row := range crawledData {
+		log.Println(row.Title)
+		log.Println(row.Newbie)
+		log.Println(row.StartDate)
+	}
+
+	return crawledData
 }
