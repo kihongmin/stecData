@@ -5,6 +5,20 @@ from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 
+class job:
+    def __init__(self,title,url,company,start_date,newbie):
+        self.data = {
+        'title' : title,
+        'url' : url,
+        'company' : company,
+        'start_date' : start_date,
+        'newbie' : newbie,
+        'contents' : ''
+        }
+
+    def set_contents(self,contents):
+        self.data['contents'] += contents
+
 def headless(driver_path):
     options = webdriver.ChromeOptions()
     options.add_argument('--window-size=1920,1080')
@@ -24,3 +38,18 @@ def transfrom_date(date):
             return None
     else:
         return None
+
+def make_newbie(newbie_list):
+    newbie = {'인턴':10,'신입':50,'경력':90}
+    newbie_list = list(filter(lambda x:x in newbie,newbie_list))
+    return list(map(lambda x:newbie[x],newbie_list))
+
+def programmers_newbie(newbie_list):
+    p = re.compile('경력 무관')
+    m = re.compile('경력')
+    if p.search(newbie_list):
+        return [50]
+    elif m.search(newbie_list):
+        return [90]
+    else:
+        return []

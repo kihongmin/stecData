@@ -7,14 +7,12 @@ from bs4 import BeautifulSoup
 import warnings
 warnings.filterwarnings(action='ignore')
 
-def make_newbie(newbie_list):
-    newbie = {'인턴':10,'신입':50,'경력':90}
-    newbie_list = list(filter(lambda x:x in newbie,newbie_list))
-    return list(map(lambda x:newbie[x],newbie_list))
 
-def rocketpunch():
-    del_ws = re.compile(r'\s+')
-    driver = headless('/Users/mingihong/chromedriver')
+def rocketpunch(driver_path=None):
+    if not driver_path:
+        driver_path='/Users/mingihong/chromedriver'
+    driver = headless(driver_path)
+#    driver = webdriver.Chrome(driver_path)
     driver.get('https://www.rocketpunch.com/jobs?page=1')
     final_data = []
     while True:
@@ -26,6 +24,7 @@ def rocketpunch():
         soup = BeautifulSoup(html,'html.parser')
 
         company_list = soup.select('#company-list > div.company.item')
+        backup_url = driver.current_url
         for company in company_list:
             company_name = company.select('div.content > div.company-name > a > h4 > strong')[0].text
             post_list = company.select('div.content > div.company-jobs-detail > div.job-detail')
@@ -35,24 +34,46 @@ def rocketpunch():
                     continue
                 post_main = post.select('div > a.nowrap.job-title.primary.link')[0]
                 post_title = post_main.text
-                post_url = post_main.get('href')
+                post_url = 'https://www.rocketpunch.com' + post_main.get('href')
                 post_newbie = make_newbie(post.select('div > span.job-stat-info')[0].text.replace(',',' ').split())
-                crawled_data.append({
-                    'title':post_title,
-                    'url' : 'https://www.rocketpunch.com'+post_url,
-                    'company' : company_name,
-                    'start_date' : post_date,
-                    'newbie' : post_newbie
-                })
+                crawled_data.append(
+                    job(post_title,post_url,company_name,post_date,post_newbie)
+                )
         final_data.extend(crawled_data)
-
         _next = driver.find_elements_by_css_selector('#search-results > div.ui.blank.right.floated.segment > div.ui.pagination.menu > a')[-1].get_attribute('href')
         if _next:
             driver.get(_next)
         else:
             break
-        print(final_data)
-    return final_data
+
+    return final_data, driver
+
+def body_text(driver,job):
+    driver.get(job.data['url'])
+    WebDriverWait(driver, 10).until(
+        EC.presence_of_element_located((By.CSS_SELECTOR, "#wrap > div.eight.wide.job-content.column > section.row > h4"))
+    )
+    html = driver.page_source
+    soup = BeautifulSoup(html,'html.parser')
+    for section in soup.select('#wrap > div.eight.wide.job-content.column > section.row > h4'):
+        if section.text in set(["주요 업무", "업무 관련 기술 / 활동 분야", "채용 상세"]):
+            job.set_contents(section.parent.text.replace('\n',' '))
+
+    return job
+
+def run(driver_path=None):
+    job_list, driver = rocketpunch(driver_path)
+    for job in job_list:
+        job = body_text(driver,job)
+    driver.quit()
+
+    return job_list
+
 
 if __name__ == "__main__":
-    rocketpunch()
+    run()
+    #rocketpunch()
+    #driver = headless('/Users/mingihong/chromedriver')
+    #t = job(0,'https://www.rocketpunch.com/jobs/43074/Trading-Business-Development-at-Tridge    ',0,0,0)
+    #t = body_text(driver,t)
+    #print(t.data)
