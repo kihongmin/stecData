@@ -29,7 +29,8 @@ def rocketpunch(driver_path=None):
             company_name = company.select('div.content > div.company-name > a > h4 > strong')[0].text
             post_list = company.select('div.content > div.company-jobs-detail > div.job-detail')
             for post in post_list:
-                post_date = transfrom_date(post.select('div.job-dates > span')[-1].text)
+                post_date = transfrom_date(post.select('div.job-dates > span')[-1].text,True)
+                print(post_date)
                 if not post_date:
                     continue
                 post_main = post.select('div > a.nowrap.job-title.primary.link')[0]

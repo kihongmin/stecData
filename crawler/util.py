@@ -18,6 +18,8 @@ class job:
 
     def set_contents(self,contents):
         self.data['contents'] += contents
+def head(driver_path):
+    return webdriver.Chrome(driver_path)
 
 def headless(driver_path):
     options = webdriver.ChromeOptions()
@@ -27,17 +29,20 @@ def headless(driver_path):
     driver = webdriver.Chrome(driver_path, chrome_options=options)
     return driver
 
-def transfrom_date(date):
-    p = re.compile('등록')
-    if p.search(date):
-        date = re.sub('[^0-9]+','',date)
-        now = datetime.datetime.now()
-        if (now - datetime.timedelta(days=1)).strftime('%m%d') == date:
-            return str(now.year)+date
-        else:
+def transfrom_date(date,is_rocket=False):
+    if is_rocket:
+        p = re.compile('등록')
+        if not p.search(date):
             return None
+    date = re.sub('[^0-9]+','',date)
+    now = datetime.datetime.now()
+    if len(date) == 6:
+        date = date[2:]
+    if (now - datetime.timedelta(days=1)).strftime('%m%d') == date:
+        return str(now.year)+date
     else:
         return None
+
 
 def make_newbie(newbie_list):
     newbie = {'인턴':10,'신입':50,'경력':90}
