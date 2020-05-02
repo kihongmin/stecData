@@ -10,7 +10,7 @@ warnings.filterwarnings(action='ignore')
 
 def programmers(driver_path=None):
     if not driver_path:
-        driver_path='/Users/mingihong/chromedriver'
+        driver_path='chromedriver'
     driver = headless(driver_path)
 #    driver = webdriver.Chrome(driver_path)
     driver.get('https://programmers.co.kr/job')
