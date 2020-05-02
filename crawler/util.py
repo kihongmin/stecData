@@ -36,10 +36,18 @@ def transfrom_date(date,is_rocket=False):
             return None
     date = re.sub('[^0-9]+','',date)
     now = datetime.datetime.now()
-    if len(date) == 6:
-        date = date[2:]
-    if (now - datetime.timedelta(days=1)).strftime('%m%d') == date:
-        return str(now.year)+date
+    len_date = len(date)
+    if len_date == 4:
+        #일단 이렇게
+        date = '2020'+date
+    elif len_date == 6:
+        date = '20'+date
+    elif len_date == 12:
+        date = '20'+date[:6]
+    elif len_date == 16:
+        date = date[:8]
+    if (now - datetime.timedelta(days=1)).strftime('%Y%m%d') == date:
+        return date
     else:
         return None
 

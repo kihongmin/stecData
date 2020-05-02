@@ -30,7 +30,6 @@ def rocketpunch(driver_path=None):
             post_list = company.select('div.content > div.company-jobs-detail > div.job-detail')
             for post in post_list:
                 post_date = transfrom_date(post.select('div.job-dates > span')[-1].text,True)
-                print(post_date)
                 if not post_date:
                     continue
                 post_main = post.select('div > a.nowrap.job-title.primary.link')[0]
@@ -38,7 +37,7 @@ def rocketpunch(driver_path=None):
                 post_url = 'https://www.rocketpunch.com' + post_main.get('href')
                 post_newbie = make_newbie(post.select('div > span.job-stat-info')[0].text.replace(',',' ').split())
                 crawled_data.append(
-                    job(post_title,post_url,company_name,post_date,post_newbie)
+                    job(post_title,post_url,company_name,post_date,post_newbie).data
                 )
         final_data.extend(crawled_data)
         _next = driver.find_elements_by_css_selector('#search-results > div.ui.blank.right.floated.segment > div.ui.pagination.menu > a')[-1].get_attribute('href')
@@ -49,8 +48,8 @@ def rocketpunch(driver_path=None):
 
     return final_data, driver
 
-def body_text(driver,job):
-    driver.get(job.data['url'])
+def body_text(driver,json):
+    driver.get(json['url'])
     WebDriverWait(driver, 10).until(
         EC.presence_of_element_located((By.CSS_SELECTOR, "#wrap > div.eight.wide.job-content.column > section.row > h4"))
     )
@@ -58,21 +57,29 @@ def body_text(driver,job):
     soup = BeautifulSoup(html,'html.parser')
     for section in soup.select('#wrap > div.eight.wide.job-content.column > section.row > h4'):
         if section.text in set(["주요 업무", "업무 관련 기술 / 활동 분야", "채용 상세"]):
-            job.set_contents(section.parent.text.replace('\n',' '))
+            json['contents'] += section.parent.text.replace('\n',' ')
 
-    return job
+    return json
 
 def run(driver_path=None):
-    job_list, driver = rocketpunch(driver_path)
-    for job in job_list:
-        job = body_text(driver,job)
-    driver.quit()
 
-    return job_list
+    print('start crawling : rocketpunch')
+    json_list, driver = rocketpunch(driver_path)
+    print('The number of rocketpunch post : %d'%(len(json_list)))
+    for i, json in enumerate(json_list):
+        if i%10 == 0:
+            print('rocketpunch post : %d'%(i))
+        json = body_text(driver,json)
+    driver.quit()
+    print('finish crawling : rocketpunch')
+
+    return json_list
 
 
 if __name__ == "__main__":
     run()
+
+
     #rocketpunch()
     #driver = headless('/Users/mingihong/chromedriver')
     #t = job(0,'https://www.rocketpunch.com/jobs/43074/Trading-Business-Development-at-Tridge    ',0,0,0)

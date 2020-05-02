@@ -37,7 +37,7 @@ def nexon(driver_path=None):
             post_newbie = post.select('td')[1].text
 
             crawled_data.append(
-                job(post_title,post_url,'nexon',post_date,post_newbie)
+                job(post_title,post_url,'nexon',post_date,post_newbie).data
             )
 
         final_data.extend(crawled_data)
@@ -50,24 +50,27 @@ def nexon(driver_path=None):
 
     return final_data, driver
 
-def body_text(driver,job):
-    driver.get(job.data['url'])
-
+def body_text(driver,json):
+    driver.get(json['url'])
 
     html = driver.page_source
     soup = BeautifulSoup(html,'html.parser')
     txt = re.sub('[\s]+',' ',soup.select('#con_right > div.content > div.list_txt01')[0].text)
-    job.set_contents(txt)
-    return job
+    json['contents'] += txt
+    return json
 
 def run(driver_path=None):
-    job_list, driver = nexon(driver_path)
-    for job in job_list:
-        job = body_text(driver,job)
-        print(job.data)
+    print('start crawling : nexon')
+    json_list, driver = nexon(driver_path)
+    print('The number of nexon post : %d'%(len(json_list)))
+    for i,json in enumerate(json_list):
+        if i%10 == 0:
+            print('nexon post : %d'%(i))
+        jojsonb = body_text(driver,json)
     driver.quit()
+    print('finish crawling : nexon')
 
-    return job_list
+    return json_list
 
 
 if __name__ == "__main__":

@@ -32,7 +32,7 @@ def programmers(driver_path=None):
             post_date = ''
             post_newbie = programmers_newbie(post.select('ul.company-info > li.experience')[0].text)
             crawled_data.append(
-                job(post_title,post_url,company_name,post_date,post_newbie)
+                job(post_title,post_url,company_name,post_date,post_newbie).data
             )
         final_data.extend(crawled_data)
         _next = soup.select('#paginate > nav > ul > li.next.next_page.page-item > a')[-1].get('href')
@@ -43,8 +43,8 @@ def programmers(driver_path=None):
 
     return final_data, driver
 
-def body_text(driver,job):
-    driver.get(job.data['url'])
+def body_text(driver,json):
+    driver.get(json['url'])
     WebDriverWait(driver, 10).until(
         EC.presence_of_element_located((By.CSS_SELECTOR, "body > div.main > div.position-show > div > div"))
     )
@@ -52,16 +52,20 @@ def body_text(driver,job):
     soup = BeautifulSoup(html,'html.parser')
     for section in soup.select('body > div.main > div.position-show > div > div > div.content-body.col-item.col-xs-12.col-sm-12.col-md-12.col-lg-8 > section'):
         if section.get('class')[0] in set(['section-stacks','section-position','section-requirements','section-preference','section-description']):
-            job.set_contents(section.text)
-    return job
+            json['contents'] += section.text
+    return json
 
 def run(driver_path=None):
-    job_list, driver = programmers(driver_path)
-    for job in job_list:
-        job = body_text(driver,job)
+    print('start crawling : programmers')
+    json_list, driver = programmers(driver_path)
+    print('The number of programmers post : %d'%(len(json_list)))
+    for i, json in enumerate(json_list):
+        if i%10 == 0:
+            print('programmers post : %d'%(i))
+        json = body_text(driver,json)
     driver.quit()
-
-    return job_list
+    print('finish crawling : programmers')
+    return json_list
 
 
 if __name__ == "__main__":
