@@ -18,6 +18,7 @@ class job:
 
     def set_contents(self,contents):
         self.data['contents'] += contents
+
 def head(driver_path):
     return webdriver.Chrome(driver_path)
 

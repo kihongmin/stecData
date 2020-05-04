@@ -10,7 +10,7 @@ warnings.filterwarnings(action='ignore')
 
 def programmers(driver_path=None):
     if not driver_path:
-        driver_path='chromedriver'
+        driver_path='/chromedriver'
     driver = headless(driver_path)
 #    driver = webdriver.Chrome(driver_path)
     driver.get('https://programmers.co.kr/job')
@@ -44,6 +44,7 @@ def programmers(driver_path=None):
     return final_data, driver
 
 def body_text(driver,json):
+    print(json)
     driver.get(json['url'])
     WebDriverWait(driver, 10).until(
         EC.presence_of_element_located((By.CSS_SELECTOR, "body > div.main > div.position-show > div > div"))
@@ -63,10 +64,11 @@ def run(driver_path=None):
         if i%10 == 0:
             print('programmers post : %d'%(i))
         json = body_text(driver,json)
+
     driver.quit()
     print('finish crawling : programmers')
     return json_list
 
 
 if __name__ == "__main__":
-    a = run()
+    a = run('/Users/mingihong/chromedriver')
