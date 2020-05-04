@@ -7,14 +7,11 @@ from bs4 import BeautifulSoup
 import warnings
 warnings.filterwarnings(action='ignore')
 
+base_url = 'https://programmers.co.kr/job'
 
-def programmers(driver_path=None):
-    if not driver_path:
-        driver_path='/chromedriver'
-    driver = headless(driver_path)
-#    driver = webdriver.Chrome(driver_path)
-    driver.get('https://programmers.co.kr/job')
-    final_data = []
+def run():
+    driver = connect()
+
     while True:
         crawled_data = []
         WebDriverWait(driver, 10).until(
@@ -26,23 +23,28 @@ def programmers(driver_path=None):
         posts = soup.select('#list-positions-wrapper > ul > li > div.item-body')
         for post in posts:
             post_main = post.select('h4 > a')[0]
-            post_url = 'https://programmers.co.kr'+post_main.get('href')
+            post_url = base_url + post_main.get('href')
             post_title = post_main.text
             company_name = post.select('h5')[0].text
             post_date = ''
             post_newbie = programmers_newbie(post.select('ul.company-info > li.experience')[0].text)
-            crawled_data.append(
-                job(post_title,post_url,company_name,post_date,post_newbie).data
+            tmp_post = Recruitment(
+                title=post_title,
+                url = post_url,
+                company = company_name,
+                start_date = '',
+                level = post_newbie,
+                job=''
             )
-        final_data.extend(crawled_data)
+            tmp_post.run()
+
+
         _next = soup.select('#paginate > nav > ul > li.next.next_page.page-item > a')[-1].get('href')
         if _next == '#':
             break
         else:
             driver.get('https://programmers.co.kr'+_next)
-
-    return final_data, driver
-
+'''
 def body_text(driver,json):
     print(json)
     driver.get(json['url'])
@@ -68,7 +70,7 @@ def run(driver_path=None):
     driver.quit()
     print('finish crawling : programmers')
     return json_list
-
+'''
 
 if __name__ == "__main__":
     a = run('/Users/mingihong/chromedriver')
