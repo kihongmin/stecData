@@ -1,4 +1,5 @@
 from crawler import nexon
+from crawler import programmers
 
 
-nexon.run()
+programmers.run()
