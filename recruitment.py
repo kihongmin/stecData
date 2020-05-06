@@ -1,5 +1,6 @@
-from regularizer import regularizer
-from es import ESCompany, ESRecruitment, ESTech
+## .pkl 파일 X
+#from regularizer import regularizer
+#from es import ESCompany, ESRecruitment, ESTech
 
 
 class Recruitment:

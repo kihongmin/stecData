@@ -35,7 +35,6 @@ def transfrom_date(date,is_rocket=False):
         date = date[:8]
     else:
         return None
-
     if (now - datetime.timedelta(days=1)).strftime('%Y%m%d') == date:
         return date
     else:

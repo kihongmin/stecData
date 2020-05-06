@@ -9,7 +9,8 @@ class STECRegularizer:
     '''
     '''
     def __init__(self, tech_words, double_words, triple_words, syns_words):
-        self.puctuation = re.compile(f'[!"$%&\'()*,-/:;<=>?@[\\]^_`{|}~]')
+        # self.puctuation = re.compile(f'[!"$%&\'()*,-/:;<=>?@[\\]^_`{|}~]') 오류
+        self.puctuation = re.compile('[!"$%&\'()*,-/:;<=>?@[\\]^_`{|}~]')
         self.hannanum = Hannanum()
         with open(tech_words, 'rb') as f:
             tech_words = pickle.load(f)
