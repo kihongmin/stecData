@@ -6,8 +6,6 @@ from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.common.by import By
 from bs4 import BeautifulSoup
 
-sys.path.append(os.path.dirname(os.path.abspath(os.path.dirname(__file__))))
-
 from . import connect, transfrom_date, make_newbie
 from recruitment import Recruitment
 from selenium import webdriver

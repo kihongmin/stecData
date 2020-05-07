@@ -1,5 +1,4 @@
-from crawler import nexon
-from crawler import programmers
+from crawler import nexon,programmers,rocketpunch
 
 
-programmers.run()
+rocketpunch.run()
