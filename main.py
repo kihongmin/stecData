@@ -1,4 +1,4 @@
-from crawler import nexon,programmers,rocketpunch
+from crawler import nexon,programmers,rocketpunch,netmarble
 
 
-rocketpunch.run()
+netmarble.run()
