@@ -53,8 +53,9 @@ def run():
                 job='',
                 contents=post_contents
             )
-            print(tmp_post.get(True))
-            #tmp_post.run()
+            tmp_post.run()
+            #print(tmp_post.get(True))
+
 
         _next = driver.find_element_by_css_selector('#contents > div > div > div > div.recruit_list_wrapper > div.recruit_pagination > button.page_next')
         if not _next.get_attribute('disabled'):

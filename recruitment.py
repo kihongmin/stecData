@@ -1,5 +1,5 @@
 ## .pkl 파일 X
-#from regularizer import regularizer
+from regularizer import regularizer
 #from es import ESCompany, ESRecruitment, ESTech
 
 
@@ -22,7 +22,7 @@ class Recruitment:
 
     def run(self):
         self.regularize()
-        self.index2es()
+        #self.index2es()
 
 
     def get(self, all=False):

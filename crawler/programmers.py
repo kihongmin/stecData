@@ -55,8 +55,8 @@ def run():
                 job='',
                 contents=post_contents
             )
-            
-            #tmp_post.run()
+            tmp_post.run()
+            print(tmp_post.get())
 
         _next = soup.select('#paginate > nav > ul > li.next.next_page.page-item > a')[-1].get('href')
         if _next == '#':
