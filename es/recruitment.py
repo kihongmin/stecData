@@ -1,6 +1,7 @@
-## .pkl 파일 X
-from regularizer import regularizer
-#from es import ESCompany, ESRecruitment, ESTech
+from ..regularizer import regularizer
+from . import ESCompany
+from . import ESRecruitment
+from . import ESTech
 
 
 class Recruitment:
@@ -22,22 +23,11 @@ class Recruitment:
 
     def run(self):
         self.regularize()
-        #self.index2es()
+        self.index2es()
 
 
     def get(self, all=False):
-        if all:
-            return {
-                'title': self.title,
-                'job':self.job,
-                'url': self.url,
-                'company': self.company,
-                'start_date': self.start_date,
-                'level': self.level,
-                'techs': self.techs,
-                'contents': self.contents,
-            }
-        return {
+        ret = {
             'title': self.title,
             'job':self.job,
             'url': self.url,
@@ -46,6 +36,9 @@ class Recruitment:
             'level': self.level,
             'techs': self.techs,
         }
+        if all:
+            ret.update({'contents': self.contents,})
+        return ret
 
 
     def regularize(self):

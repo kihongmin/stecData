@@ -16,7 +16,10 @@ class ESRecruitment:
             'company':company,
             'job':job,
             'techs':techs,
-            'level':level,
+            'level':{
+                'gte': level[0],
+                'lte': level[-1],
+            },
             'url':url,
             'start_date':start_date,
         }
