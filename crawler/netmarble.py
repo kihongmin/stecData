@@ -1,16 +1,19 @@
-import re,os,sys,json
+import re
 
-import selenium
+from selenium import webdriver
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.common.by import By
 from bs4 import BeautifulSoup
 
-from . import connect, transfrom_date, make_newbie, programmers_newbie
-from recruitment import Recruitment
-from selenium import webdriver
+from . import connect
+from ..es.recruitment import Recruitment
+from ..es.level import Level
+from ..es.start_date import StartDate
+
 
 start_url = 'https://m.netmarble.com/rem/www/noticelist.jsp'
+
 
 def run():
     driver = connect()
@@ -26,12 +29,12 @@ def run():
         posts = soup.select('#contents > div > div > div > div.recruit_list_wrapper > ul > li')
         for post in posts:
 
-            post_date = transfrom_date(post.select('div.cw_jopinfo > a > span.cw_info > span.cw_range')[0].text)
-            #if not post_date:
-            #    continue
+            post_date = StartDate.transform(
+                date=post.select('div.cw_jopinfo > a > span.cw_info > span.cw_range')[0].text)
             post_title = post.select('div.cw_jopinfo > a > span.cw_title')[0].text
             post_url = 'https://m.netmarble.com/rem/www'+post.select('div.cw_jopinfo > a')[0].get('href')[1:]
-            post_newbie = make_newbie(post.select('div.cw_jopinfo > a > span.cw_info > span.cw_type')[0].text)
+            post_newbie = Level.string2code(
+                text=post.select('div.cw_jopinfo > a > span.cw_info > span.cw_type')[0].text)
 
             tmp_driver = connect()
             tmp_driver.get(post_url)
@@ -48,14 +51,12 @@ def run():
                 title=post_title,
                 url = post_url,
                 company = 'netmarble',
-                start_date = '',
+                start_date = post_date,
                 level = post_newbie,
-                job='',
+                job=None,
                 contents=post_contents
             )
             tmp_post.run()
-            #print(tmp_post.get(True))
-
 
         _next = driver.find_element_by_css_selector('#contents > div > div > div > div.recruit_list_wrapper > div.recruit_pagination > button.page_next')
         if not _next.get_attribute('disabled'):
