@@ -5,7 +5,7 @@ from elasticsearch import Elasticsearch
 from .. import config
 
 
-cfg = os.getenv('STEC_ENV', 'dev')
+cfg = config.get_config[os.getenv('STEC_ENV', 'local')]
 es = Elasticsearch(cfg.ES_HOST)
 
 

@@ -1,6 +1,5 @@
 import re
 
-from selenium import webdriver
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.common.by import By
@@ -64,7 +63,7 @@ def run():
                 url=post_url,
                 company='nexon',
                 start_date=post_date,
-                level=post_newbie,
+                level=levels,
                 job=None,
                 contents=[post_contents])
             tmp_post.run()

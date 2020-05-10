@@ -65,7 +65,7 @@ class STECRegularizer:
                 word = tmp
             if word in self.double_words:
                 for j in range(2):
-                    ret[i+j] = ""
+                    pos[i+j] = ""
                 ret.append(word)
         pos = [r for r in pos if r != ""]
 
@@ -81,7 +81,7 @@ class STECRegularizer:
 
 
 regularizer = STECRegularizer(
-                    tech_words=os.path.abspath('tech_words.pkl'),
-                    double_words=os.path.abspath('double_words.pkl'),
-                    triple_words=os.path.abspath('triple_words.pkl'),
-                    syns_words=os.path.abspath('syns_words.pkl'),)
+                    tech_words=os.path.abspath('./main/regularizer/tech_words.pkl'),
+                    double_words=os.path.abspath('./main/regularizer/double_words.pkl'),
+                    triple_words=os.path.abspath('./main/regularizer/triple_words.pkl'),
+                    syns_words=os.path.abspath('./main/regularizer/syns_words.pkl'),)
