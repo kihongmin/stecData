@@ -79,4 +79,5 @@ def run():
         if _next:
             driver.get(_next)
         else:
+            driver.quit()
             return
