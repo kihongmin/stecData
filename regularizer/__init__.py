@@ -7,7 +7,6 @@ from konlpy.tag import Hannanum
 
 class STECRegularizer:
     def __init__(self, tech_words, double_words, triple_words, syns_words):
-        # self.puctuation = re.compile(f'[!"$%&\'()*,-/:;<=>?@[\\]^_`{|}~]') 오류
         self.puctuation = re.compile('[!"$%&\'()*,-/:;<=>?@[\\]^_`{|}~]')
         self.hannanum = Hannanum()
         with open(tech_words, 'rb') as f:
@@ -20,13 +19,11 @@ class STECRegularizer:
             self.syns_words = pickle.load(f)
 
     def run(self, sent):
-
         sent = sent.strip()
         sent = sent.replace("\xa0", " ")
         sent = re.sub('[\s]+',' ',sent)
         sent = self.puctuation.sub(u' ', sent)
         sent = sent.lower()
-
 
         # pos
         pos = []
@@ -36,6 +33,17 @@ class STECRegularizer:
                 pos.append(word[0])
 
         ret = []
+        # for num, dic in {3:self.triple_words, 2:self.double_words}.items():
+        #     for i, r in enumerate(pos):
+        #         word = ' '.join(pos[i:i+num])
+        #         tmp = self.syns_words.get(word)
+        #         if tmp is not None:
+        #             word = tmp
+        #         if word in dic:
+        #             for j in range(num):
+        #                 pos[i+j] = ""
+        #             ret.append(word)
+        #     pos = [r for r in pos if r != ""]
 
         # triple
         for i, r in enumerate(pos):
@@ -47,8 +55,6 @@ class STECRegularizer:
                 for j in range(3):
                     pos[i+j] = ""
                 ret.append(word)
-        #아래 주석 처리 -> pos를 빈 list로 만들어서
-        #pos = [r for r in ret if r != ""]
         pos = [r for r in pos if r != ""]
 
         # double
@@ -61,7 +67,6 @@ class STECRegularizer:
                 for j in range(2):
                     ret[i+j] = ""
                 ret.append(word)
-        #아래 주석 처리 -> pos를 빈 list로 만들어서
         pos = [r for r in pos if r != ""]
 
         # normal
@@ -69,10 +74,9 @@ class STECRegularizer:
             tmp = self.syns_words.get(word)
             if tmp is not None:
                 word = tmp
-            #r -> word로 수정
             if word in self.tech_words:
                 ret.append(word)
-    
+
         return ret
 
 

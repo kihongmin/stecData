@@ -1,4 +1,134 @@
-# Data Description
+# 환경설정
+
+## Dependency
+
+```shell
+pip3 install selenium bs4
+```
+
+# Data Schema
+
+## ES
+
+### Recruitment
+```json
+{
+  "settings":{
+    "analysis":{
+      "analyzer":{
+        "pos_analyzer":{
+          "type":"custom",
+          "tokenizer":"hanguel_tokenizer",
+            "filter":[
+                "lowercase",
+                "trim",
+            ],
+        },
+        "completion_analyzer":{
+          "type":"custom",
+          "char_filter":["jaso_char"],
+          "tokenizer":"icu_tokenizer"
+        },
+      },
+      "char_filter":{
+        "jaso_char":{
+          "type":"icu_normalizer",
+          "name":"nfkc_cf",
+          "mode":"decompose"
+        },
+      },
+      "tokenizer":{
+        "hanguel_tokenizer":{
+          "type":"seunjeon_tokenizer",
+          "deniflect":"true",
+          "decompound":"false",
+          "index_eojeol":"false",
+          "index_poses":["N", "V", "M", "UNK"],
+          "pos_tagging":"false",
+          "max_unk_length":8,
+        },
+      },
+    },
+  },
+  "mappings":{
+    "doc":{
+      "dynamic":"true",
+      "properties": {
+        "title":{
+          "type":"text",
+          "analyzer":"pos_analyzer",
+          "copy_to":["title_completion"],
+        },
+        "title_completion":{
+          "type":"completion",
+          "analyzer":"completion_analyzer",
+        },
+        "company":{
+          "type":"keyword",
+        },
+        "job":{
+            "type":"keyword",
+        },
+        "tech":{
+            "type":"keyword",
+        },
+        "level":{
+            "type":"integer_range",
+        },
+        "url":{
+          "type":"keyword",
+          "index":"false",
+          "norms":"false",
+        },
+        "start_date":{
+          "type":"date",
+          "format":"yyyyMMdd",
+        },
+      },
+    },
+  },
+}
+```
+
+### completion: techs, company
+```json
+{
+  "settings":{
+    "analysis":{
+      "analyzer":{
+        "completion_analyzer":{
+          "type":"custom",
+          "char_filter":["jaso_char"],
+          "tokenizer":"icu_tokenizer"
+        }
+      },
+      "char_filter":{
+        "jaso_char":{
+          "type":"icu_normalizer",
+          "name":"nfkc_cf",
+          "mode":"decompose"
+        }
+      },
+    }
+  },
+  "mappings":{
+    "doc":{
+      "dynamic":"true",
+      "properties": {
+        "tech":{
+          "type":"completion",
+          "analyzer":"completion_analyzer"
+        },
+      }
+    }
+  }
+}
+```
+
+
+# 데이터 소스
+
+## Data Description
 {
 1. url:
     -ex) https://gitlab.com/geekermeter/data/-/edit/master/README.md
@@ -14,7 +144,7 @@
 
 }
 
-# 크롤링 대상 홈페이지
+## 크롤링 대상 홈페이지
 
 	- coupang
 	- kakao
@@ -26,7 +156,7 @@
 	- rocketpunch
 -----------------------------
 
-# 진행상황
+## 진행상황
 
 |사이트|URL|Title|origin|start_date|newbie|content|auto|
 |:--:|:--:|:--:|:--:|:--:|:--:|:--:|:--:|
