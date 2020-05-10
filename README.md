@@ -1,9 +1,12 @@
 # 환경설정
 
-## Dependency
+- ubuntu 18.04 기준
 
 ```shell
-pip3 install selenium bs4
+sudo apt update
+sudo apt install g++ openjdk-8-jdk python3-dev python3-pip curl -y
+
+pip3 install selenium bs4 konlpy
 ```
 
 # Data Schema
