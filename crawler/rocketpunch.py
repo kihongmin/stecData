@@ -48,7 +48,7 @@ def run():
                 levels = [level for level in levels if level is not None]
                 levels = sorted(levels)
                 if len(levels) < 1:
-                    levels = [Level.unlimited]
+                    levels = [Level.newbie, Level.unlimited]
 
                 tmp_driver = connect()
                 tmp_driver.get(post_url)
