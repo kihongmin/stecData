@@ -33,18 +33,6 @@ class STECRegularizer:
                 pos.append(word[0])
 
         ret = []
-        # for num, dic in {3:self.triple_words, 2:self.double_words}.items():
-        #     for i, r in enumerate(pos):
-        #         word = ' '.join(pos[i:i+num])
-        #         tmp = self.syns_words.get(word)
-        #         if tmp is not None:
-        #             word = tmp
-        #         if word in dic:
-        #             for j in range(num):
-        #                 pos[i+j] = ""
-        #             ret.append(word)
-        #     pos = [r for r in pos if r != ""]
-
         # triple
         for i, r in enumerate(pos):
             word = ' '.join(pos[i:i+3])

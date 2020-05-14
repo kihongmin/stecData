@@ -2,7 +2,7 @@ import os
 
 from elasticsearch import Elasticsearch
 
-import config
+from .. import config
 
 
 cfg = config.get_config[os.getenv('STEC_ENV', 'local')]

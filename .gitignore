@@ -1,2 +1,8 @@
+# directories
+assets
+dataset
 main/crawler/assets
-main/crawler/naver.*
+__pycache__
+
+# files
+# main/crawler/naver.*
