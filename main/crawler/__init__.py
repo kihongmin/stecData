@@ -4,7 +4,7 @@ from selenium import webdriver
 
 
 _chrome_options_ = ['--window-size=1920,1080', '--headless', 'disable-gpu']
-_driver_path_ = os.path.abspath('./assets/chromedriver')
+_driver_path_ = os.path.abspath('./main/crawler/assets/chromedriver')
 
 
 def connect(driver_path=_driver_path_, args=_chrome_options_):

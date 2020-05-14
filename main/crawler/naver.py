@@ -27,40 +27,35 @@ def run(driver_path=None):
         WebDriverWait(driver, 10).until(
             EC.presence_of_element_located((By.CSS_SELECTOR, "#jobListDiv > ul > li:nth-child(1) > a > span > strong"))
         )
-        while True:
-            #인턴은 적어서 10개이상 안나오더라... + 네이버는 지금 클릭으로 하기 애매한 부문 많아서
+        for i in range(10):
+            # while문으로 click하면 랜덤하게 진행됨 -> 일단은 for문으로 진행
             if button == '#entType004':
                 break
-            WebDriverWait(driver, 10).until(
-                EC.presence_of_element_located((By.CSS_SELECTOR, '#moreDiv > button'))
-            )
             try:
                 driver.find_element_by_css_selector('#moreDiv > button').click()
+                driver.implicitly_wait(5)
             except:
                 break
         html = driver.page_source
         soup = BeautifulSoup(html,'html.parser')
-
         posts = soup.select('#jobListDiv > ul > li')
+        print(len(posts))
         for post in posts:
-            post_date = transfrom_date(post.select('a > span > em')[0].text)
+            post_date = StartDate.transform(post.select('a > span > em')[0].text)
             post_url = 'https://recruit.navercorp.com'+post.select('a')[0].get('href')
             post_title = post.select('a > span > strong')[0].text
-            post_newbie = Level.string2code(
-                text=post.select('div.cw_jopinfo > a > span.cw_info > span.cw_type')[0].text)
+            post_newbie = Level.string2code(newbie)
             print(post_date,post_url,post_title,post_newbie)
 
             tmp_driver = connect()
             tmp_driver.get(post_url)
-            tmp_html = tmp_driver.page_source
-            tmp_driver.quit()
-
-            soup = BeautifulSoup(tmp_html,'html.parser')
-            post_contents = []
-            txt = soup.select('#tmpCapture > div > table')
+            html = driver.page_source
+            soup = BeautifulSoup(html,'html.parser')
+            txt = soup.select('#content > div > div.career_detail > div.dtl_context > div.context_area')
             if txt:
-                post_contents.append(re.sub('[\s]+', ' ', txt[0].text))
-
+                post_contents = [re.sub('\n|\xa0','',txt[0].text)]
+            else:
+                post_contents = []
             tmp_post = Recruitment(
                 title=post_title,
                 url = post_url,
