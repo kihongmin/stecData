@@ -1,4 +1,4 @@
-from ..regularizer import regularizer
+from regularizer import regularizer
 from . import ESCompany
 from . import ESRecruitment
 from . import ESTech

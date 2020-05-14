@@ -7,9 +7,9 @@ from selenium.common.exceptions import NoSuchElementException
 from bs4 import BeautifulSoup
 
 from . import connect
-from ..es.start_date import StartDate
-from ..es.recruitment import Recruitment
-from ..es.level import Level
+from es.start_date import StartDate
+from es.recruitment import Recruitment
+from es.level import Level
 
 
 base_url = 'https://career.nexon.com'

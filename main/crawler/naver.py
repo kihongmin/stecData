@@ -1,23 +1,21 @@
-import re, os, sys
-import selenium
-sys.path.append(os.path.dirname(os.path.abspath(os.path.dirname(__file__))))
-from util import *
-from selenium import webdriver
-from bs4 import BeautifulSoup
-from selenium import webdriver
-from selenium.webdriver.common.by import By
+import re
+
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
-import warnings
-warnings.filterwarnings(action='ignore')
+from selenium.webdriver.common.by import By
+from bs4 import BeautifulSoup
+
+from . import connect
+from es.recruitment import Recruitment
+from es.level import Level
+from es.start_date import StartDate
 
 
-def naver(driver_path=None):
-    if not driver_path:
-        driver_path='/Users/mingihong/chromedriver'
-#    driver = headless(driver_path)
-    driver = webdriver.Chrome(driver_path)
-    driver.get('https://recruit.navercorp.com/naver/job/list/developer')
+start_url = 'https://recruit.navercorp.com/naver/job/list/developer'
+
+def run(driver_path=None):
+    driver = connect()
+    driver.get(start_url)
 
     final_data = []
     title_set = set()
@@ -30,6 +28,7 @@ def naver(driver_path=None):
             EC.presence_of_element_located((By.CSS_SELECTOR, "#jobListDiv > ul > li:nth-child(1) > a > span > strong"))
         )
         while True:
+            #인턴은 적어서 10개이상 안나오더라... + 네이버는 지금 클릭으로 하기 애매한 부문 많아서
             if button == '#entType004':
                 break
             WebDriverWait(driver, 10).until(
@@ -47,11 +46,33 @@ def naver(driver_path=None):
             post_date = transfrom_date(post.select('a > span > em')[0].text)
             post_url = 'https://recruit.navercorp.com'+post.select('a')[0].get('href')
             post_title = post.select('a > span > strong')[0].text
-            post_newbie = make_newbie([newbie])
-            
-            final_data.append(
-                job(post_title,post_url,'naver',post_date,post_newbie).data
+            post_newbie = Level.string2code(
+                text=post.select('div.cw_jopinfo > a > span.cw_info > span.cw_type')[0].text)
+            print(post_date,post_url,post_title,post_newbie)
+
+            tmp_driver = connect()
+            tmp_driver.get(post_url)
+            tmp_html = tmp_driver.page_source
+            tmp_driver.quit()
+
+            soup = BeautifulSoup(tmp_html,'html.parser')
+            post_contents = []
+            txt = soup.select('#tmpCapture > div > table')
+            if txt:
+                post_contents.append(re.sub('[\s]+', ' ', txt[0].text))
+
+            tmp_post = Recruitment(
+                title=post_title,
+                url = post_url,
+                company = 'netmarble',
+                start_date = post_date,
+                level = post_newbie,
+                job=None,
+                contents=post_contents
             )
+            tmp_post.run()
+
+
     return final_data, driver
 
 def body_text(driver,json):
@@ -69,14 +90,6 @@ def body_text(driver,json):
     else:
         return None
 
-
-def run(driver_path=None):
-    json_list, driver = naver(driver_path)
-    for json in json_list:
-        json = body_text(driver,json)
-    driver.quit()
-
-    return json_list
 
 
 if __name__ == "__main__":

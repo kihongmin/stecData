@@ -6,9 +6,9 @@ from selenium.webdriver.common.by import By
 from bs4 import BeautifulSoup
 
 from . import connect
-from ..es.recruitment import Recruitment
-from ..es.level import Level
-from ..es.start_date import StartDate
+from es.recruitment import Recruitment
+from es.level import Level
+from es.start_date import StartDate
 
 
 start_url = 'https://m.netmarble.com/rem/www/noticelist.jsp'
