@@ -28,3 +28,11 @@ class Level:
 
     def string2code(text):
         return Level.string_mapper.get(text)
+    #naver
+    def text2code(text_list):
+        naver_compile = re.compile('신입|인턴|경력')
+        temp =  list(map(lambda y: Level.string_mapper.get(y), naver_compile.findall(text_list)))
+        if temp:
+            return temp
+        else:#아무말도 없으면 경력표시
+            return [1000]

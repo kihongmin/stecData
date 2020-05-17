@@ -5,4 +5,4 @@ from .crawler import netmarble
 from .crawler import naver
 
 
-nexon.run()
+naver.run()
