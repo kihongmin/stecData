@@ -3,6 +3,7 @@ from .crawler import programmers
 from .crawler import rocketpunch
 from .crawler import netmarble
 from .crawler import naver
+from .crawler import kakao
 
 
-naver.run()
+kakao.run()

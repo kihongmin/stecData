@@ -34,8 +34,8 @@ def run():
             post_date = None
             post_title = post.select('div > div > div > a > span')[0].text
             post_url = 'https://careers.kakao.com'+post.select('div > div > div > a')[0].get('href')
-            post_newbie = Level.string2code(
-                text='경력')
+            post_newbie = Level.text2code(
+                text_list=post_title)
 
             tmp_driver = connect()
             tmp_driver.get(post_url)
@@ -56,7 +56,7 @@ def run():
                 level = post_newbie,
                 job=None,
                 contents=post_contents
-            )
+            )            
             tmp_post.run()
 
         driver.get(get_pageurl(i))
