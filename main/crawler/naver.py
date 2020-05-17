@@ -16,10 +16,10 @@ start_url = 'https://recruit.navercorp.com/naver/job/list/developer'
 
 
 def run(driver_path=None):
-    driver = connect()
-
     #가끔 아예 못 가져오는 경우 있음->총 3번 시도
     for t in range(3):
+        driver = connect()
+
         for i in range(15):
             driver.get(start_url)
             WebDriverWait(driver, 10).until(
@@ -40,6 +40,7 @@ def run(driver_path=None):
         if len(posts) != 0:
             break
         print('fail to load naver... try again')
+        driver.quit()        
 
     for post in posts:
         post_date = StartDate.transform(post.select('a > span > em')[0].text)
@@ -66,5 +67,5 @@ def run(driver_path=None):
             job=None,
             contents=post_contents
         )
-        
+
         tmp_post.run()
