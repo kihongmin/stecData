@@ -1,5 +1,5 @@
 
-import re
+import re,time
 
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
@@ -12,36 +12,27 @@ from ..es.level import Level
 from ..es.start_date import StartDate
 
 
+main_url = 'https://recruit.navercorp.com/naver/recruitMain'
 start_url = 'https://recruit.navercorp.com/naver/job/list/developer'
 
+def run():
+    driver = connect()
+    driver.get(main_url)
 
-def run(driver_path=None):
-    #가끔 아예 못 가져오는 경우 있음->총 3번 시도
-    for t in range(3):
-        driver = connect()
+    n_posts = int(driver.find_element_by_css_selector('#content > div.spot > div.recruit_post > ul > li.fst > a > span > strong').text)
 
-        for i in range(15):
-            driver.get(start_url)
-            WebDriverWait(driver, 10).until(
-                EC.presence_of_element_located((By.CSS_SELECTOR, "#jobListDiv"))
-            )
-            try:
-                driver.find_element_by_xpath('//*[@id="moreDiv"]/button').click()
-                #왜인지 모르겠는데 아래 요청 보내면 post 목록 어느정도 정확하게 가져옴
-                driver.current_url
-                driver.implicitly_wait(5)
-            except:
-                driver.current_url
-                driver.implicitly_wait(5)
-                continue
-        html = driver.page_source
-        soup = BeautifulSoup(html,'html.parser')
-        posts = soup.select('#jobListDiv > ul > li')
-        if len(posts) != 0:
-            break
-        print('fail to load naver... try again')
-        driver.quit()        
+    driver.get(start_url)
+    WebDriverWait(driver, 10).until(
+        EC.presence_of_element_located((By.CSS_SELECTOR, '#moreDiv > button'))
+    )
+    for i in range(round(n_posts/10)):
+        driver.find_element_by_css_selector('#moreDiv > button').click()
+        time.sleep(5)
+    html = driver.page_source
+    soup = BeautifulSoup(html,'html.parser')
+    posts = soup.select('#jobListDiv > ul > li')
 
+    print("The number of crawled naver data : ",len(posts))
     for post in posts:
         post_date = StartDate.transform(post.select('a > span > em')[0].text)
         post_url = 'https://recruit.navercorp.com'+post.select('a')[0].get('href')
@@ -51,13 +42,16 @@ def run(driver_path=None):
 
         tmp_driver = connect()
         tmp_driver.get(post_url)
-        html = driver.page_source
+        html = tmp_driver.page_source
+
         soup = BeautifulSoup(html,'html.parser')
         txt = soup.select('#content > div > div.career_detail > div.dtl_context > div.context_area')
+
         if txt:
             post_contents = [re.sub('\n|\xa0','',txt[0].text)]
         else:
             post_contents = []
+
         tmp_post = Recruitment(
             title=post_title,
             url = post_url,

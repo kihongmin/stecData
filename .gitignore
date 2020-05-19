@@ -2,6 +2,7 @@
 assets
 dataset
 main/crawler/assets
+*.ipynb
 __pycache__
 
 # files
