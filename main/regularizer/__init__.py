@@ -53,7 +53,10 @@ class STECRegularizer:
                 word = tmp
             if word in self.double_words:
                 for j in range(2):
-                    pos[i+j] = ""
+                    try:
+                        pos[i+j] = ""
+                    except:
+                        print(pos,i,j)
                 ret.append(word)
         pos = [r for r in pos if r != ""]
 
