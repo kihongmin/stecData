@@ -16,13 +16,19 @@ class ESRecruitment:
             'company':company,
             'job':job,
             'techs':techs,
-            'level':{
-                'gte': level[0],
-                'lte': level[-1],
-            },
             'url':url,
             'start_date':start_date,
         }
+        if level:
+            body['level'] = {
+                'gte': level[0],
+                'lte': level[-1],
+            }
+        else:
+            body['level'] = {
+                'gte':0,
+                'lte':0
+            }
         return es.index(index=cfg.ES_RECRUITMENT, doc_type=cfg.ES_DOCTYPE, body=body, timeout='10s')
 
 
