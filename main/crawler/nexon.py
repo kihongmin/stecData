@@ -15,7 +15,7 @@ from ..es.level import Level
 base_url = 'https://career.nexon.com'
 
 
-def run():
+def run(is_load_all = False):   #이전 데이터 전부다 가져오나
     driver = connect()
     driver.get(base_url)
     WebDriverWait(driver, 10).until(
@@ -33,7 +33,9 @@ def run():
         posts = soup.select('#con_right > div.content > table > tbody > tr')
         #채용 공고 페이지의 채용 공고들
         for post in posts:
-            post_date = StartDate.transform(post.select('td')[5].text)
+            post_date, is_posted_yesterday = StartDate.transform(post.select('td')[5].text)
+            if not is_load_all and not is_posted_yesterday : #어제꺼만 가져오는데 어제꺼 아니면 continue
+                continue
             post_title = post.select('td.tleft.fc_02 > a > span')[0].text
             post_url = base_url+post.select('td.tleft.fc_02 > a')[0].get('href')
 
