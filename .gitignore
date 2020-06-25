@@ -4,6 +4,8 @@ dataset
 main/crawler/assets
 *.ipynb
 __pycache__
+.ipynb_checkpoints
 
 # files
 # main/crawler/naver.*
+test.py

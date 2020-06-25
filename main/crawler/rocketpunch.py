@@ -14,7 +14,7 @@ from ..es.start_date import StartDate
 start_url = 'https://www.rocketpunch.com/jobs?page=1'
 
 
-def run():
+def run(is_load_all = False):   #이전 데이터 전부다 가져오나
     driver = connect()
     driver.get(start_url)
 
@@ -30,9 +30,12 @@ def run():
             company_name = company.select('div.content > div.company-name > a > h4 > strong')[0].text
             post_list = company.select('div.content > div.company-jobs-detail > div.job-detail')
             for post in post_list:
-                post_date = StartDate.transform(
+                post_date, is_posted_yesterday = StartDate.transform(
                     date=post.select('div.job-dates > span')[-1].text,
                     source='rocketpunch')
+                if not is_load_all and not is_posted_yesterday : #어제꺼만 가져오는데 어제꺼 아니면 continue
+                    continue
+                
                 post_main = post.select('div > a.nowrap.job-title.primary.link')[0]
                 post_title = post_main.text
 

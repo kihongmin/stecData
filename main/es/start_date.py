@@ -7,10 +7,6 @@ class StartDate:
     rocketpunch_compiler = re.compile('등록')
 
     def transform(date, source=None):
-        if source == 'rocketpunch':
-            if not StartDate.rocketpunch_compiler.search(date):
-                return None
-
         date = re.sub('[^0-9]', '', date)
         len_date = len(date)
         if len_date == 4:
@@ -22,10 +18,15 @@ class StartDate:
         elif len_date == 16:
             date = date[:8]
         else:
-            return None
+            return None, None
 
         now = datetime.now()
         now -= timedelta(days=1)
+
+        if source == 'rocketpunch':
+            if not StartDate.rocketpunch_compiler.search(date):
+                return date, None
+
         if now.strftime('%Y%m%d') != date:
-            return None
-        return date
+            return date, False
+        return date, True
