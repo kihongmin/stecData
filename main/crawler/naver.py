@@ -15,7 +15,7 @@ from ..es.start_date import StartDate
 main_url = 'https://recruit.navercorp.com/naver/recruitMain'
 start_url = 'https://recruit.navercorp.com/naver/job/list/developer'
 
-def run():
+def run(is_load_all = False):   #이전 데이터 전부다 가져오나
     driver = connect()
     driver.get(main_url)
 
@@ -25,7 +25,7 @@ def run():
     WebDriverWait(driver, 10).until(
         EC.presence_of_element_located((By.CSS_SELECTOR, '#moreDiv > button'))
     )
-    for i in range(round(n_posts/10)):
+    for i in range(n_posts//10 - 1):
         driver.find_element_by_css_selector('#moreDiv > button').click()
         time.sleep(5)
     html = driver.page_source
@@ -34,7 +34,9 @@ def run():
 
     print("The number of crawled naver data : ",len(posts))
     for post in posts:
-        post_date = StartDate.transform(post.select('a > span > em')[0].text)
+        post_date, is_posted_yesterday = StartDate.transform(post.select('a > span > em')[0].text)
+        if not is_load_all and not is_posted_yesterday : #어제꺼만 가져오는데 어제꺼 아니면 continue
+            continue
         post_url = 'https://recruit.navercorp.com'+post.select('a')[0].get('href')
         post_title = post.select('a > span > strong')[0].text
         post_newbie = Level.text2code(
