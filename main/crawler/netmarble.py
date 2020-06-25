@@ -14,7 +14,7 @@ from ..es.start_date import StartDate
 start_url = 'https://m.netmarble.com/rem/www/noticelist.jsp'
 
 
-def run():
+def run(is_load_all = False):   #이전 데이터 전부다 가져오나
     driver = connect()
     driver.get(start_url)
 
@@ -28,8 +28,10 @@ def run():
         posts = soup.select('#contents > div > div > div > div.recruit_list_wrapper > ul > li')
         for post in posts:
 
-            post_date = StartDate.transform(
+            post_date, is_posted_yesterday = StartDate.transform(
                 date=post.select('div.cw_jopinfo > a > span.cw_info > span.cw_range')[0].text)
+            if not is_load_all and not is_posted_yesterday : #어제꺼만 가져오는데 어제꺼 아니면 continue
+                continue
             post_title = post.select('div.cw_jopinfo > a > span.cw_title')[0].text
             post_url = 'https://m.netmarble.com/rem/www'+post.select('div.cw_jopinfo > a')[0].get('href')[1:]
             post_newbie = Level.string2code(
