@@ -15,7 +15,7 @@ start_url = 'https://programmers.co.kr/job'
 base_url = 'https://programmers.co.kr'
 
 
-def run():
+def run(is_load_all = False):
     driver = connect()
     driver.get(start_url)
 

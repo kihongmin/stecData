@@ -16,7 +16,7 @@ class Level:
     }
 
     # programmers
-    programmers_no_experience = re.compile('경력 무관')
+    programmers_no_experience = re.compile('경력 무관|신입')
     programmers_experience = re.compile('경력')
 
     def programmers2code(text):
@@ -35,4 +35,4 @@ class Level:
         if temp:
             return temp
         else:#아무말도 없으면 경력표시
-            return [1000]
+            return (1000)

@@ -23,7 +23,7 @@ class Recruitment:
 
     def run(self):
         self.regularize()
-        self.index2es()
+        #self.index2es()
 
 
     def get(self, all=False):
@@ -46,6 +46,7 @@ class Recruitment:
         for content in self.contents:
             self.techs += regularizer.run(content)
         self.techs = list(set(self.techs))
+        print(self.title, self.techs,self.job,self.company,self.level)
 
 
     def index2es(self):
