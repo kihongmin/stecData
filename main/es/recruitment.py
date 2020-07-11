@@ -23,6 +23,7 @@ class Recruitment:
 
     def run(self):
         self.regularize()
+        #print(self.get())
         self.index2es()
 
 

@@ -35,20 +35,14 @@ def run(is_load_all = False):   #이전 데이터 전부다 가져오나
                     source='rocketpunch')
                 if not is_load_all and not is_posted_yesterday : #어제꺼만 가져오는데 어제꺼 아니면 continue
                     continue
-                
+
                 post_main = post.select('div > a.nowrap.job-title.primary.link')[0]
                 post_title = post_main.text
 
                 post_url = 'https://www.rocketpunch.com' + post_main.get('href')
-                levels = []
-                for level in post.select('div > span.job-stat-info')[0].text.replace(',',' ').split():
-                    levels.append(
-                        Level.string2code(
-                            text=level
-                        )
-                    )
-                levels = [level for level in levels if level is not None]
-                levels = sorted(levels)
+
+                levels = sorted(Level.text2code(post.select('div > span.job-stat-info')[0].text))
+            
                 if len(levels) < 1:
                     levels = [Level.newbie, Level.unlimited]
 
